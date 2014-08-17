@@ -14,6 +14,12 @@ public class PointTest extends TestCase {
         for (int i = 0; i < 3; i++) {
             assertTrue("All points in array must be equal", points[i].equals(innerPoints[i]));
         }
+
+        points = new Point[]{ new Point(1,0), new Point(2,0), new Point(3,0) };
+        innerPoints =  Point.pointsBetween(new Point(0,0), new Point(4,0)).toArray(new Point[3]);
+        for (int i = 0; i < 3; i++) {
+            assertTrue("All points in array must be equal", points[i].equals(innerPoints[i]));
+        }
     }
 
     public void testEquals() throws Exception {

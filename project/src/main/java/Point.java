@@ -27,6 +27,11 @@ public class Point {
         return y;
     }
 
+    @Override
+    public String toString() {
+        return "X: " + this.x + ", Y: " + this.getY();
+    }
+
     public static LinkedList<Point> pointsBetween(Point a, Point b) {
         assert(!a.equals(b));
         assert(a.getX() == b.getX() || a.getY() == b.getY());
