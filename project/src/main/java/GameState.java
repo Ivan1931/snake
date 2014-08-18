@@ -45,4 +45,8 @@ public class GameState {
     public Obstacle[] getObstacles() {
         return obstacles;
     }
+
+    public Snake getSnake(int snakeNumber) {
+        return snakes[snakeNumber];
+    }
 }

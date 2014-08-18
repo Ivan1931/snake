@@ -8,17 +8,19 @@ public class GameController {
     private OpponentModel[] opponentModels;
     private LinkedList<GameState> previousStates;
     private Strategy strategy;
+    private int ourSnake;
 
     public GameController() {
         previousStates = new LinkedList<GameState>();
+        strategy = new RandomStrategy();
     }
 
     public void update(GameState nextState) {
-
+        previousStates.addFirst(nextState);
     }
 
     public Direction move() {
-
+        return strategy.decideMove(previousStates.getFirst(), opponentModels, ourSnake);
     }
 
     public OpponentModel[] getOpponentModels() {
