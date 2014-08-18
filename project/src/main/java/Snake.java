@@ -61,6 +61,39 @@ public class Snake {
         return result;
     }
 
+    public Point getHead() {
+        return this.body.getFirst();
+    }
+
+    public Point getSecondPoint() {
+        if (this.body.size() > 1) {
+            return this.body.get(1);
+        }
+
+        return null;
+    }
+
+    public Point getLastPoint() {
+        return this.body.getLast();
+    }
+
+    public Direction currentDirection () {
+        Point head = this.getHead();
+        Point second = this.getSecondPoint();
+        if (second != null) {
+            if (head.getX() > second.getX())
+                return Direction.EAST;
+            else if (head.getX() < second.getX())
+                return Direction.WEST;
+            else if (head.getY() > second.getY())
+                return Direction.SOUTH;
+            else
+                return Direction.NORTH;
+        } else {
+            return null;
+        }
+    }
+
     public boolean isAlive() {
         return this.alive;
     }

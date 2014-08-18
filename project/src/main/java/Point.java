@@ -19,6 +19,31 @@ public class Point {
         this.y = Integer.parseInt(points[1]);
     }
 
+    public Point north() {
+        return new Point(this.x, this.y - 1);
+    }
+
+    public Point south() {
+        return new Point(this.x, this.y + 1);
+    }
+
+    public Point east() {
+        return new Point(this.x + 1, this.y);
+    }
+
+    public Point west() {
+        return new Point(this.x - 1, this.y);
+    }
+
+    public Point pointInDirection(Direction direction) {
+        switch (direction) {
+            case NORTH: return this.north();
+            case  EAST: return this.east();
+            case SOUTH: return this.south();
+            default: return this.west();
+        }
+    }
+
     public int getX() {
         return x;
     }

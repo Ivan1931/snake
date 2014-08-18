@@ -37,4 +37,13 @@ public class SnakeTest extends TestCase {
             count++;
         }
     }
+
+    public void testEndPoints() throws Exception {
+        String creationString = "alive 26 2 10,12 15,12 15,10";
+        Snake snake = new Snake(creationString);
+        Point testHead = new Point(10, 12);
+        Point testLast = new Point(15,10);
+        assertTrue("Head of the snake is 10,12", snake.getHead().equals(testHead));
+        assertTrue("Last part of the snake is 15,10", snake.getLastPoint().equals(testLast));
+    }
 }
