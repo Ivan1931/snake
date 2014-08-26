@@ -14,7 +14,7 @@ public class Point {
     }
 
     public Point(String commaSeperatedString) {
-        String[] points = commaSeperatedString.split(",");
+        String[] points = commaSeperatedString.split("(,| )");
         this.x = Integer.parseInt(points[0]);
         this.y = Integer.parseInt(points[1]);
     }

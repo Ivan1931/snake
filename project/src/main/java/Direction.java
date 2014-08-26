@@ -11,4 +11,13 @@ public enum Direction {
         return EAST;
     }
 
+    public static int asInt(Direction d) {
+        switch (d) {
+            case NORTH: return 0;
+            case SOUTH: return 1;
+            case WEST: return 2;
+            default: return 3;
+        }
+    }
+
 }

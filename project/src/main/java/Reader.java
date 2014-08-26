@@ -14,18 +14,24 @@ public class Reader {
         reader = new BufferedReader(new InputStreamReader(System.in));
     }
 
-    public String readInitialState() throws Exception{
+    public String readInitialState() throws IOException {
         return reader.readLine();
     }
 
-    public String[] readNextGameState() throws IOException {
-        String[] stateRepresentation = new String[NUM_LINES];
+    public String[] readNextGameState() {
+        String acc = "";
+        String line;
 
-        for (int i = 0; i < NUM_LINES; i++) {
-            stateRepresentation[i] = reader.readLine();
+        System.out.println("log " + "Reading next game");
+        try {
+            while ((line = reader.readLine()) != null) {
+                line = line.concat("\n");
+            }
+        } catch (IOException e) {
+            System.out.println("log We have a failure!!!");
         }
 
-        return stateRepresentation;
+        return acc.split("\n");
     }
 
 }

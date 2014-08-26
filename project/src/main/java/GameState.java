@@ -8,6 +8,7 @@ public class GameState {
     private int ourSnakeNumber;
 
     public GameState(String[] initialisationStrings, Obstacle[] obstacles) {
+        assert(initialisationStrings.length > 0);
         final int APPLE1_INDEX = 0;
         final int APPLE2_INDEX = 1;
         final int SNAKE_NUMBER_INDEX = 2;
@@ -23,7 +24,7 @@ public class GameState {
         ourSnakeNumber = Integer.parseInt(initialisationStrings[SNAKE_NUMBER_INDEX]);
 
         int numberSnakes = initialisationStrings.length - FIRST_SNAKE_INDEX;
-        snakes = new Snake[numberSnakes - 1]; //Subtract one since our snake will not be stored
+        snakes = new Snake[numberSnakes]; //Subtract one since our snake will not be stored
 
         for (int i = FIRST_SNAKE_INDEX; i < initialisationStrings.length; i++) {
             snakes[i - FIRST_SNAKE_INDEX] = new Snake(initialisationStrings[i]);
