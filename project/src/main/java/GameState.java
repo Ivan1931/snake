@@ -50,4 +50,8 @@ public class GameState {
     public Snake getSnake(int snakeNumber) {
         return snakes[snakeNumber];
     }
+
+    public Snake getOurSnake() {
+        return snakes[ourSnakeNumber];
+    }
 }

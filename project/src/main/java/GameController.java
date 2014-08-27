@@ -12,7 +12,12 @@ public class GameController {
 
     public GameController() {
         previousStates = new LinkedList<GameState>();
-        strategy = new RandomStrategy();
+        strategy = new SimpleAStar();
+    }
+
+    public GameController(Strategy strategy) {
+        this.strategy = strategy;
+        previousStates = new LinkedList<GameState>();
     }
 
     public void update(GameState nextState) {
