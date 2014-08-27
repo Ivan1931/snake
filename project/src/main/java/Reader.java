@@ -17,14 +17,18 @@ public class Reader {
         return reader.nextLine();
     }
 
+    /**
+     * This method scans standard output for next game state
+     * @return Null if the game is over else it will return the game state as an array containing each line of the state string
+     */
     public String[] readNextGameState() {
         String acc = "";
         String line;
-        System.out.println("log " + "Reading next game");
-
         for (int i = 0; i < NUM_LINES; i++) {
             acc += (reader.nextLine() + "\n");
         }
+
+        if (acc.equals("Game Over")) return null;
 
         return acc.split("\n");
     }

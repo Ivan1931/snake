@@ -2,7 +2,7 @@
  * Created by jonah-hooper on 2014/08/27.
  */
 
-public class SimpleAStar extends Strategy{
+public class SimpleAStar extends Strategy {
     @Override
     public Direction decideMove(GameState state, OpponentModel[] opponentModels, int snakeNumber) {
         Direction nextMove = state.getOurSnake().currentDirection();

@@ -33,6 +33,10 @@ public class Board {
             for(Point point : otherPoints) setPoint(point, BoardSquare.ANYTHING);
     }
 
+    public BoardSquare getPoint(Point point) {
+        return board[point.getX()][point.getY()];
+    }
+
     private void setSnake(Snake snake) {
         for(Point point : snake.getBody()) {
             setPoint(point, BoardSquare.SNAKE);
@@ -84,7 +88,18 @@ public class Board {
         return ret.toArray(new Point[ret.size()]);
     }
 
+    public boolean isApple(Point point) {
+        return getPoint(point) == BoardSquare.APPLE;
+    }
+
     //This performs an a-star algorithm using euclidean distance
+
+    /**
+     * Performs an A* search to find an aproximate shortest path from one end to another
+     * @param start Must be inside the graph
+     * @param end Must be an empty square or an apple
+     * @return An array of points from the starting point to the end point which forms a path to be taken between the points
+     */
     public Point[] aproximateShortestPath(Point start, Point end) {
         //Since java has no fucking built in tuples I had to build this. Fuck fuckedy fuck fuck.
         class Tuple implements Comparable<Tuple> {
@@ -130,10 +145,10 @@ public class Board {
         Point next = current;
         LinkedList<Point> path = new LinkedList<Point>();
         while(!next.equals(start)) {
-            path.add(next);
+            path.addFirst(next);
             next = cameFrom.get(next);
         }
-        path.add(start);
+        path.addFirst(start);
 
         return path.toArray(new Point[path.size()]);
     }
@@ -144,7 +159,7 @@ public class Board {
             Point[] allNeighbours = p.getAllNeighbours();
             LinkedList<Point> possibleNeighbours = new LinkedList<Point>();
             for(Point point : allNeighbours) {
-                if (Board.isOnBoard(point) && isEmpty(point)) possibleNeighbours.add(point);
+                if (Board.isOnBoard(point) && (isEmpty(point) || isApple(point))) possibleNeighbours.add(point);
             }
             return possibleNeighbours.toArray(new Point[possibleNeighbours.size()]);
         }
@@ -158,9 +173,9 @@ public class Board {
 
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE - 1; j++) {
-                acc += board[i][j].toString() + " ";
+                acc += board[j][i].toString() + " ";
             }
-            acc += board[i][BOARD_SIZE - 1] + "\n";
+            acc += board[BOARD_SIZE - 1][i] + "\n";
         }
         acc = acc.substring(0, acc.length() - 1); // This will remove the last newLine
         return acc;

@@ -13,13 +13,13 @@ public class Program {
         String initial = reader.readInitialState();
         System.out.println("log " + initial);
         GameController controller = new GameController();
-        while(true) {
-            String[] nextStateRepresentation = reader.readNextGameState();
+        String[] nextStateRepresentation = reader.readNextGameState();
+        while (nextStateRepresentation != null){
             GameState nextState = new GameState(nextStateRepresentation, null);
             controller.update(nextState);
             Direction nextMove = controller.move();
-            System.out.println("log " + Direction.asInt(nextMove));
             System.out.println(Direction.asInt(nextMove));
+            nextStateRepresentation = reader.readNextGameState();
         }
     }
 }

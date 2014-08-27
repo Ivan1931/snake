@@ -19,7 +19,7 @@ public class BoardTest extends TestCase {
         GameState gameState = new GameState(stateStrs, null);
         Board board = new Board(gameState);
         //System.out.println(board.toString());
-        Point[] path = board.aproximateShortestPath(new Point(0, 0), new Point(7,16));
+        Point[] path = board.aproximateShortestPath(new Point(10, 12), new Point(8,16));
         Board boardWithPath = new Board(gameState, path);
         System.out.println("");
         for (int i = 0; i < Board.BOARD_SIZE - 1; i++) {
