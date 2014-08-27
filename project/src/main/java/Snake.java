@@ -109,4 +109,21 @@ public class Snake {
     public LinkedList<Point> getBody() {
         return this.body;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Snake)) return false;
+
+        Snake snake = (Snake) o;
+
+        if (alive != snake.alive) return false;
+        if (kills != snake.kills) return false;
+        if (length != snake.length) return false;
+        if (body != null ? !body.equals(snake.body) : snake.body != null) return false;
+
+        return true;
+    }
+
 }
+

@@ -44,12 +44,28 @@ public class Point {
         }
     }
 
+    public Direction directionBetween(Point that) {
+        if (this.north().equals(that)) return Direction.NORTH;
+        if (this.south().equals(that)) return Direction.SOUTH;
+        if (this.east().equals(that)) return Direction.EAST;
+        if (this.west().equals(that)) return Direction.WEST;
+        return null;
+    }
+
+    public Point[] getAllNeighbours() {
+        return new Point[] { this.north(), this.east(), this.west(), this.south() };
+    }
+
     public int getX() {
         return x;
     }
 
     public int getY() {
         return y;
+    }
+
+    public double manhattanDistance(Point that) {
+        return Math.abs(this.x - that.getX())  + Math.abs(this.y - that.getY());
     }
 
     @Override
@@ -96,5 +112,12 @@ public class Point {
         if (y != point.y) return false;
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = x;
+        result = 31 * result + y;
+        return result;
     }
 }
