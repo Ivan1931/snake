@@ -21,8 +21,8 @@ public class Program {
             GameState nextState = new GameState(nextStateRepresentation, null);
             controller.update(nextState);
             Direction nextMove = controller.move();*/
-            System.out.println("east");
-            String[] nextState = reader.readNextGameState();
+            System.out.println("1");
+            //String[] nextState = reader.readNextGameState();
         }
     }
 }
