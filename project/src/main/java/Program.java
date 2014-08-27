@@ -13,16 +13,13 @@ public class Program {
         String initial = reader.readInitialState();
         System.out.println("log " + initial);
         GameController controller = new GameController();
-        Random random = new Random();
         while(true) {
-            //System.out.println("log " + Direction.asInt(nextMove));
-            /*String[] nextStateRepresentation = reader.readNextGameState();
-            System.out.println(random.nextInt(4));
+            String[] nextStateRepresentation = reader.readNextGameState();
             GameState nextState = new GameState(nextStateRepresentation, null);
             controller.update(nextState);
-            Direction nextMove = controller.move();*/
-            System.out.println("1");
-            //String[] nextState = reader.readNextGameState();
+            Direction nextMove = controller.move();
+            System.out.println("log " + Direction.asInt(nextMove));
+            System.out.println(Direction.asInt(nextMove));
         }
     }
 }
