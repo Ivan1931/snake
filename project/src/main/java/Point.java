@@ -64,8 +64,37 @@ public class Point {
         return y;
     }
 
+    /**
+     * Returns the number of squares two points are away from each other on x-axis
+     * Subtracts the argument point from calling points x value
+     * @param that
+     * @return an Integer
+     */
+    public int xDiff(Point that) {
+        return this.x - that.getX();
+    }
+
+    public int yDiff(Point that) {
+        return this.y - that.getY();
+    }
+
     public double manhattanDistance(Point that) {
         return Math.abs(this.x - that.getX())  + Math.abs(this.y - that.getY());
+    }
+
+    /**
+     * Calculates a gravity like distance between points. Another metric of measuring distance between points.
+     * @param that This other point
+     * @return a positive double. MAX_VALUE if the argument point is equal to this point
+     */
+    public double gravityDistance(Point that) {
+        final double G = 1.0;
+        if(this.equals(that)) return Double.MAX_VALUE;
+        return G / Math.pow(
+                Math.sqrt(
+                    Math.abs(xDiff(that)) + Math.abs(yDiff(that))
+                ),
+            2);
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.util.*;
 public class Board {
     public static final int BOARD_SIZE = 50;
     private BoardSquare[][] board;
+    private LinkedList<Point> nonEmptySpaces;
 
     public Board(GameState state) {
         this(state.getSnakes(), state.getApples(), state.getObstacles(), null);
@@ -19,6 +20,8 @@ public class Board {
     }
 
     public Board(Snake[] snakes, Apple[] apples, Obstacle[] obstacles, Point[] otherPoints) {
+        this.nonEmptySpaces = new LinkedList<Point>();
+
         this.board = Board.emptyBoard();
 
         if (snakes != null)
@@ -37,6 +40,11 @@ public class Board {
         return board[point.getX()][point.getY()];
     }
 
+    private void setPoint(Point point, BoardSquare square) {
+        if (square != BoardSquare.EMPTY) nonEmptySpaces.add(point);
+        board[point.getX()][point.getY()] = square;
+    }
+
     private void setSnake(Snake snake) {
         for(Point point : snake.getBody()) {
             setPoint(point, BoardSquare.SNAKE);
@@ -47,9 +55,6 @@ public class Board {
         setPoint(apple, BoardSquare.APPLE);
     }
 
-    private void setPoint(Point point, BoardSquare square) {
-        board[point.getX()][point.getY()] = square;
-    }
 
     public static boolean isOnBoard(Point point) {
         return point.getX() >= 0 && point.getY() >= 0 &&
@@ -101,24 +106,6 @@ public class Board {
      * @return An array of points from the starting point to the end point which forms a path to be taken between the points
      */
     public Point[] aproximateShortestPath(Point start, Point end) {
-        //Since java has no fucking built in tuples I had to build this. Fuck fuckedy fuck fuck.
-        class Tuple implements Comparable<Tuple> {
-            public Point point;
-            public double priority;
-
-            public Tuple(Point point, double priority) {
-                this.point = point;
-                this.priority = priority;
-            }
-
-            @Override
-            public int compareTo(Tuple that) {
-                if(this.priority > that.priority) return 1;
-                if(this.priority < that.priority) return -1;
-                return 0;
-            }
-        }
-
         PriorityQueue<Tuple> frontier = new PriorityQueue<Tuple>();
         frontier.add(new Tuple(start, 0.0));
         HashMap<Point, Point> cameFrom = new HashMap<Point, Point>();
@@ -166,6 +153,34 @@ public class Board {
         return null;
     }
 
+    public boolean isFull() {
+        return nonEmptySpaces.size() == (BOARD_SIZE * BOARD_SIZE);
+    }
+
+    /**
+     * This method finds the point which has the farthest away from all other points
+     * This is measured by finding the empty point which is least affected by the density between all other non-empty points
+     * This is measured by a formula that finds the radial distance between two points and uses that in the gravity formula
+     * @return the point that should be in the most empty section of the board
+     */
+    public PriorityQueue<Tuple> getMostEmptySpace() {
+        PriorityQueue<Tuple> orderedEmptySpaces = new PriorityQueue<>();
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                Point point = new Point(i, j);
+                if(isEmpty(point)) {
+                    double totalDensity = 0.0;
+                    for(Point nonEmptyPoint : nonEmptySpaces) {
+                        totalDensity += point.gravityDistance(nonEmptyPoint);
+                    }
+                    orderedEmptySpaces.add(new Tuple(point, totalDensity));
+                }
+            }
+        }
+
+        return orderedEmptySpaces;
+    }
+
 
     @Override
     public String toString() {
@@ -179,5 +194,22 @@ public class Board {
         }
         acc = acc.substring(0, acc.length() - 1); // This will remove the last newLine
         return acc;
+    }
+
+    class Tuple implements Comparable<Tuple> {
+        public Point point;
+        public double priority;
+
+        public Tuple(Point point, double priority) {
+            this.point = point;
+            this.priority = priority;
+        }
+
+        @Override
+        public int compareTo(Tuple that) {
+            if(this.priority > that.priority) return 1;
+            if(this.priority < that.priority) return -1;
+            return 0;
+        }
     }
 }

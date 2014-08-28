@@ -12,7 +12,7 @@ public class Program {
         Reader reader = new Reader();
         String initial = reader.readInitialState();
         System.out.println("log " + initial);
-        GameController controller = new GameController();
+        GameController controller = new GameController(new Avoidance());
         String[] nextStateRepresentation = reader.readNextGameState();
         while (nextStateRepresentation != null){
             GameState nextState = new GameState(nextStateRepresentation, null);

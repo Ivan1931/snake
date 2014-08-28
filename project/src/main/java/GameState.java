@@ -1,3 +1,5 @@
+import java.util.LinkedList;
+
 /**
  * Created by jonah-hooper on 2014/07/29.
  */
@@ -33,6 +35,14 @@ public class GameState {
 
     public Snake[] getSnakes() {
         return snakes;
+    }
+
+    public Snake[] getHostileSnakes() {
+        LinkedList<Snake> hostiles = new LinkedList<Snake>();
+        for (int i = 0; i < snakes.length; i++) {
+            if(i != ourSnakeNumber) hostiles.add(snakes[i]);
+        }
+        return hostiles.toArray(new Snake[hostiles.size()]);
     }
 
     public int getOurSnakeNumber() {
