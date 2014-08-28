@@ -1,6 +1,3 @@
-import com.sun.xml.internal.ws.util.Pool;
-import sun.security.x509.CRLDistributionPointsExtension;
-
 import java.util.*;
 
 /**
@@ -165,8 +162,8 @@ public class Board {
      */
     public PriorityQueue<Tuple> getMostEmptySpace() {
         PriorityQueue<Tuple> orderedEmptySpaces = new PriorityQueue<>();
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
+        for (int i = 0; i < BOARD_SIZE; i += 2) {
+            for (int j = 0; j < BOARD_SIZE; j += 2) {
                 Point point = new Point(i, j);
                 if(isEmpty(point)) {
                     double totalDensity = 0.0;
