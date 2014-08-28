@@ -1,6 +1,8 @@
 .idea
 .gradle
 *.jar
+*.class
 out.txt
 err.txt
+*build*
 /.nb-gradle/private/
