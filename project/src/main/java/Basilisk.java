@@ -90,12 +90,63 @@ public class Basilisk extends Strategy  {
         Point nextPosition = head.pointInDirection(direction);
         final double DEATH_POINTS = -10000.0;
         if(!Board.isOnBoard(nextPosition)) return DEATH_POINTS; // Return negative death points if this move will kill us
-        if(!board.isEmpty(nextPosition)) { //If we have a non-empty space on the board
-            if (board.isApple(nextPosition)) return 0.0;
-            return DEATH_POINTS;
+        if(!board.isEmpty(nextPosition) && !board.isApple(nextPosition)) return DEATH_POINTS;
+        return 0.0; //Nothing killed us
+    }
+
+    /**
+     * This checks how many empty squares or apples our snake can reach from its current position on the board if the gamestate where to remain constant whilst our snake moved
+     * @param board the board to eval
+     * @param state the gamestate
+     * @return non-negative integer
+     */
+    private int accessibleSquares(Board board, GameState state) {
+        boolean[][] accessed = new boolean[Board.BOARD_SIZE][Board.BOARD_SIZE];
+        LinkedList<Point> frontier = new LinkedList<Point>();
+        frontier.add(state.getOurSnake().getHead());
+        Point current;
+        Point[] neighbours;
+        int reached = 0;
+        while(!frontier.isEmpty()) {
+            current = frontier.pollLast();
+            neighbours = current.getAllNeighbours();
+            for(Point neighbour : neighbours) {
+                if (Board.isOnBoard(neighbour)
+                    && (board.isEmpty(neighbour) || board.isApple(neighbour))
+                    && !accessed[neighbour.getX()][neighbour.getY()]) {
+
+                    reached ++;
+                    accessed[neighbour.getX()][neighbour.getY()] = true;
+                    frontier.add(neighbour);
+                }
+            }
         }
 
-        return 0.0; //Nothing killed us
+        return reached;
+    }
+
+    /**
+     * This method will return a negative score if our snake and another snake could possibly move into the same square in the next move
+     * @param board board to evaluate move
+     * @param state state of game
+     * @param move move to check
+     * @return 0 if no collision can occur otherwise a very low score
+     */
+    private double scoreCollosionWithHostile(Board board, GameState state, Direction move) {
+        final double SNAKE_ABOUT_TO_CHOW = -7000.0;
+        Point potentialMove = state.getOurSnake().getHead().pointInDirection(move);
+        for(Snake hostile : state.getHostileSnakes()) {
+            for(Point futurePoint : hostile.futureAllowedPoints()) {
+                if (futurePoint.equals(potentialMove)) return SNAKE_ABOUT_TO_CHOW;
+            }
+        }
+        return 500.0;
+    }
+
+    private boolean isTrapped(Board board, int reachedSquares) {
+        final int totalSquares = Board.BOARD_SIZE * Board.BOARD_SIZE;
+        final int totalEmptySquares = totalSquares - board.numberNonEmptySquares();
+        return reachedSquares != totalEmptySquares;
     }
 
     @Override
@@ -122,6 +173,8 @@ public class Basilisk extends Strategy  {
             if (shortestPath != null && shortestPath == direction) currentDirectionScore += EAT_APPLE_SCORE;
 
             if (directionToLeastDense == direction) currentDirectionScore += LEAST_DENSE_SQUARE_SCORE;
+
+            if (shortestOfOurPaths != null && shortestOfOurPaths.length == 1) currentDirectionScore += scoreCollosionWithHostile(board, state, direction);
 
             if (currentDirectionScore > bestDirectionScore) {
                 bestDirectionScore = currentDirectionScore;

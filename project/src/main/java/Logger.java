@@ -9,6 +9,7 @@ public class Logger {
     }
 
     public static void log(String[] strings) {
+        if (strings == null) return;
         for(String string : strings) {
             if (string != null)
                 System.out.println("log ".concat(string));

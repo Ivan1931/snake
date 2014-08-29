@@ -12,21 +12,21 @@ public class Program {
         String initial = reader.readInitialState();
         System.out.println("log " + initial);
         GameController controller = new GameController(new Basilisk());
-        String[] nextStateRepresentation = reader.readNextGameState();
+        String[] currentStateRepresentation = reader.readNextGameState();
+        String[] previousStateRepresentation = null;
         double previousLength = Double.MAX_VALUE;
         double currentLength = 0.0;
 
-        while (nextStateRepresentation != null){
-            GameState nextState = new GameState(nextStateRepresentation, null);
+        while (currentStateRepresentation != null){
+            GameState nextState = new GameState(currentStateRepresentation, null);
             controller.update(nextState);
             Direction nextMove;
             currentLength = nextState.getOurSnake().getLength();
 
             // Log what our dead snake looked like
             if(currentLength < previousLength) {
-                Logger.log("Snake death");
-                Logger.log(nextStateRepresentation);
-                Logger.log("===========");
+                Logger.log(previousStateRepresentation);
+                Logger.log("=");
             }
 
             try {
@@ -38,7 +38,8 @@ public class Program {
 
             System.out.println(Direction.asInt(nextMove));
             previousLength = currentLength;
-            nextStateRepresentation = reader.readNextGameState();
+            previousStateRepresentation = currentStateRepresentation;
+            currentStateRepresentation = reader.readNextGameState();
         }
     }
 }

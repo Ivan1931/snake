@@ -37,9 +37,27 @@ public class Board {
         return board[point.getX()][point.getY()];
     }
 
-    private void setPoint(Point point, BoardSquare square) {
+    public void setPoint(Point point, BoardSquare square) {
         if (square != BoardSquare.EMPTY) nonEmptySpaces.add(point);
         board[point.getX()][point.getY()] = square;
+    }
+
+    /**
+     * This method reverts the board back to its previous state after its most recent addition
+     */
+    public void rollback() {
+        Point lastPlaced = nonEmptySpaces.pollLast();
+        board[lastPlaced.getX()][lastPlaced.getY()] = BoardSquare.EMPTY;
+    }
+
+    /**
+     * Iteratively performs rollbacks
+     * @param n changes to rollback
+     */
+    public void rollback(int n) {
+        for (int i = 0; i < n && !nonEmptySpaces.isEmpty(); i++) {
+            rollback();
+        }
     }
 
     private void setSnake(Snake snake) {
@@ -75,6 +93,13 @@ public class Board {
 
     public BoardSquare[][] getBoard() {
         return this.board;
+    }
+
+    /**
+     * @return number of squares that are not empty
+     */
+    public int numberNonEmptySquares() {
+        return this.nonEmptySpaces.size() + 2;
     }
 
     public Point[] adjacentEmptyPoints(Point point) {

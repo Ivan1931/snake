@@ -110,6 +110,21 @@ public class Snake {
         return this.body;
     }
 
+    /**
+     * This method finds the possible allowed moved that a snake can make. These are moves those that are not in the same direction of the snake and are in the board
+     * @return array with the next squares the snake can move too
+     */
+    public Point[] futureAllowedPoints() {
+        LinkedList<Point> points = new LinkedList<Point>();
+        Point head = getHead();
+        for(Direction direction : currentDirection().otherDirections()) {
+            Point possibility = head.pointInDirection(direction);
+            if(Board.isOnBoard(possibility)) points.add(possibility);
+
+        }
+        return points.toArray(new Point[points.size()]);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
