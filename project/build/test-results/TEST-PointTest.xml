@@ -1,12 +1,12 @@
-<?xml version="1.1" encoding="UTF-8"?>
-<testsuite name="PointTest" tests="6" failures="0" errors="0" timestamp="2014-08-28T21:00:15" hostname="dirty-mac" time="0.178">
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="PointTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2014-08-29T11:54:27" hostname="ivans-machine" time="0.032">
   <properties/>
   <testcase name="testPointCreation" classname="PointTest" time="0.0"/>
   <testcase name="testEquals" classname="PointTest" time="0.0"/>
   <testcase name="testPointsBetween" classname="PointTest" time="0.0"/>
   <testcase name="testPointCreation" classname="PointTest" time="0.0"/>
-  <testcase name="testEquals" classname="PointTest" time="0.001"/>
-  <testcase name="testPointsBetween" classname="PointTest" time="0.0"/>
+  <testcase name="testEquals" classname="PointTest" time="0.0"/>
+  <testcase name="testPointsBetween" classname="PointTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

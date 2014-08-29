@@ -1,6 +1,6 @@
 import junit.framework.TestCase;
 
-public class AvoidanceTest extends TestCase {
+public class BasiliskTest extends TestCase {
 
     public void testDecideMove() throws Exception {
         String[] stateStrs = ("7 12\n" +
@@ -11,7 +11,7 @@ public class AvoidanceTest extends TestCase {
                 "alive 2 1 12,13 12,14\n" +
                 "alive 10 8 10,2 15,2 15,6 16,6").split("\n");
         GameState state = new GameState(stateStrs, null);
-        GameController gameController = new GameController(new Avoidance());
+        GameController gameController = new GameController(new Basilisk());
         gameController.update(state);
         assert(gameController.move() == Direction.WEST);
     }

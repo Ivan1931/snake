@@ -4,11 +4,20 @@
 public enum Direction {
     NORTH, SOUTH, WEST, EAST;
 
-    public static Direction oppositDirection(Direction d) {
-        if (d == NORTH) return SOUTH;
-        if (d == SOUTH) return NORTH;
-        if (d == EAST) return WEST;
+    public Direction oppositDirection() {
+        if (this == NORTH) return SOUTH;
+        if (this == SOUTH) return NORTH;
+        if (this == EAST) return WEST;
         return EAST;
+    }
+
+    public Direction[] otherDirections() {
+        switch (this) {
+            case NORTH: return new Direction[] { SOUTH, WEST, EAST };
+            case SOUTH: return new Direction[] { WEST, EAST, NORTH };
+            case EAST: return new Direction[] { WEST, NORTH, SOUTH };
+            default: return new Direction[] { NORTH, SOUTH, EAST };
+        }
     }
 
     public static int asInt(Direction d) {

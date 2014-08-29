@@ -8,7 +8,7 @@ public class RandomStrategy extends Strategy {
     @Override
     public Direction decideMove(GameState state, OpponentModel[] opponentModels, int snakeNumber) {
         LinkedList<Direction> directions = new LinkedList<Direction>();
-        Direction impossibleDirection = Direction.oppositDirection(state.getSnake(snakeNumber).currentDirection());
+        Direction impossibleDirection = state.getSnake(snakeNumber).currentDirection().oppositDirection();
         for(Direction direction : Direction.values()) {
             if (direction != impossibleDirection) directions.add(direction);
         }
