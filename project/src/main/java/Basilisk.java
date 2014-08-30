@@ -174,7 +174,7 @@ public class Basilisk extends Strategy  {
 
             if (directionToLeastDense == direction) currentDirectionScore += LEAST_DENSE_SQUARE_SCORE;
 
-            if (shortestOfOurPaths != null && shortestOfOurPaths.length == 1) currentDirectionScore += scoreCollosionWithHostile(board, state, direction);
+            currentDirectionScore += scoreCollosionWithHostile(board, state, direction);
 
             if (currentDirectionScore > bestDirectionScore) {
                 bestDirectionScore = currentDirectionScore;

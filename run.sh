@@ -8,4 +8,4 @@ cd ..
 
 cp "project/build/libs/snake.jar" "."
 
-java -jar SnakeVisualiser2014.jar -j snake.jar -speed $1
+java -jar SnakeVisualiser2014.jar -j snake.jar -speed $1 -duration $2
