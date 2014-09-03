@@ -25,12 +25,18 @@ public class Reader {
         String acc = "";
         String line;
         for (int i = 0; i < NUM_LINES; i++) {
-            acc += (reader.nextLine() + "\n");
+            line = reader.nextLine();
+            if (line.equals("")) break;
+            acc += line + "\n";
         }
 
         if (acc.equals("Game Over")) return null;
 
         return acc.split("\n");
+    }
+
+    public void close() {
+        reader.close();
     }
 
 }

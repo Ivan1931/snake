@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
@@ -38,5 +39,36 @@ public class GameController {
 
     public Strategy getStrategy() {
         return strategy;
+    }
+
+    public HashMap<String, Double> gameStats() {
+        HashMap<String, Double> gameStats = new HashMap<String, Double>();
+        int maxLength = Integer.MIN_VALUE;
+        int trappedCount = 0;
+        long sumOfLivingLength = 0;
+        int deathCount = 0;
+        for(GameState state : previousStates) {
+            Snake ourSnake = state.getOurSnake();
+            int length = ourSnake.getLength();
+            sumOfLivingLength += length;
+            if (maxLength < length) {
+                maxLength = length;
+            }
+
+            if(ourSnake.isTrapped(state.getBoard())) {
+                trappedCount++;
+            }
+
+            if(!ourSnake.isAlive()) {
+                deathCount++;
+            }
+        }
+        gameStats.put("Mean Length", (double) sumOfLivingLength / (double) previousStates.size());
+        gameStats.put("LongestLength", (double)maxLength);
+        gameStats.put("Trapped Count", (double)trappedCount);
+        gameStats.put("Deaths", (double) deathCount);
+        gameStats.put("Game Length", (double)previousStates.size());
+
+        return gameStats;
     }
 }

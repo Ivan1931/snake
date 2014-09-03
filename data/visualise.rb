@@ -24,6 +24,8 @@ def add_snake_to_world(world, vertexes, snake_num)
   add_between_vertexes(world, snake_num, vertexes[-2], vertexes[-1])
   x, y = vertex_coord(vertexes.first)
   world[x][y] = :head
+  x, y = vertex_coord(vertexes.last)
+  world[x][y] = :last
 end
 
 def add_between_vertexes(world, snake_num, a, b)
@@ -48,14 +50,13 @@ def read_world(str)
   lines = str.split "\n"
   lines = lines.select {|line| line != "" }
   world = Array.new(50) {Array.new(50, nil)}
-  2.times do |i|
-    x,y = apple_coords lines[i]
-    world[x][y] = :apple
-    world = Array.new(50){ Array.new(50, nil) }
-  end
   snake_num = lines[2].to_i
   lines[3..-1].each_with_index do |line, i|
     parse_snake world, line, i
+  end
+  2.times do |i|
+    x,y = apple_coords lines[i]
+    world[x][y] = :apple
   end
   world
 end
@@ -77,6 +78,8 @@ Shoes.app do
           fill red
         elsif square == :head
           fill purple 
+        elsif square == :last
+          fill cyan
         else
           fill colors[square]
         end

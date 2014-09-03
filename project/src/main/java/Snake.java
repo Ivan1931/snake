@@ -131,7 +131,7 @@ public class Snake {
      */
     public boolean moveWouldTrap(Direction direction, Board board) {
         Point nextPoint = this.getHead().pointInDirection(direction);
-        return pointsWouldTrap(board, new Point[]{ nextPoint } );
+        return board.approximateShortestPath(nextPoint, this.getEnd()) == null;
     }
 
     /**

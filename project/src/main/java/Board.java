@@ -234,7 +234,8 @@ public class Board {
     public Object[] moveableRegion(Point point, Point[] additionBlockingPoints) {
         boolean[][] emenance = new boolean[BOARD_SIZE][BOARD_SIZE];
         HashSet<Point> blockedPoints = new HashSet<Point>();
-        Collections.addAll(blockedPoints, additionBlockingPoints);
+        if (additionBlockingPoints != null)
+            Collections.addAll(blockedPoints, additionBlockingPoints);
         emenance[point.getX()][point.getY()] = true;
         LinkedList<Point> frontier = new LinkedList<Point>();
         frontier.add(point);
@@ -243,7 +244,7 @@ public class Board {
             Point current = frontier.poll();
             Point[] neighbours = adjacentEmptyPoints(current);
             for(Point neighbour : neighbours) {
-                if (!emenance[neighbour.getX()][neighbour.getY()] && !blockedPoints.contains(neighbour)) {
+                if (!emenance[neighbour.getX()][neighbour.getY()] && !blockedPoints.contains(neighbour) && !neighbour.equals(point)) {
                     emenance[neighbour.getX()][neighbour.getY()] = true;
                     frontier.add(neighbour);
                     reachable++;

@@ -6,7 +6,7 @@ end
 
 data_file = File.read ARGV[0]
 
-states = data_file.split "="
+states = data_file.split /(=|\*)/
 
 Dir.chdir "deaths"
 

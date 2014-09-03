@@ -1,5 +1,6 @@
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  * Created by jonah-hooper on 2014/08/28.
@@ -89,7 +90,7 @@ public class Basilisk extends Strategy  {
     private double moveDeathScore(Direction direction, Board board, GameState state) {
         Point head = state.getOurSnake().getHead();
         Point nextPosition = head.pointInDirection(direction);
-        final double DEATH_POINTS = -10000.0;
+        final double DEATH_POINTS = -20000.0;
         if(!Board.isOnBoard(nextPosition)) return DEATH_POINTS; // Return negative death points if this move will kill us
         if(!board.isEmpty(nextPosition) && !board.isApple(nextPosition)) return DEATH_POINTS;
         return 0.0; //Nothing killed us
@@ -134,7 +135,7 @@ public class Basilisk extends Strategy  {
      * @return 0 if no collision can occur otherwise a very low score
      */
     private double scoreCollosionWithHostile(Board board, GameState state, Direction move) {
-        final double SNAKE_ABOUT_TO_CHOW = -7000.0;
+        final double SNAKE_ABOUT_TO_CHOW = -10000.0;
         Point potentialMove = state.getOurSnake().getHead().pointInDirection(move);
         Snake[] hostileSnakes = state.getHostileSnakes();
         for(Snake hostile : hostileSnakes) {
@@ -152,6 +153,12 @@ public class Basilisk extends Strategy  {
         LinkedList<Point> body = snake.getBody();
         int count = 0;
         boolean foundTrapped;
+        /*for (int i = 0; i < 50; i++) {
+            for (int j = 0; j < 50; j++) {
+                System.out.print((trappedRegion[j][i] ? 1 : 0) + " ");
+            }
+            System.out.print("\n");
+        }*/
         for(Point segment : body) {
             Point[] adjacentBlocks = segment.getAllNeighbours();
             foundTrapped = false;
@@ -161,7 +168,7 @@ public class Basilisk extends Strategy  {
                 }
             }
             if(!foundTrapped) {
-                return snake.getLength() - count - 1;
+                return snake.getLength() - count + 1;
             }
             count++;
         }
@@ -169,17 +176,21 @@ public class Basilisk extends Strategy  {
     }
 
     private double scoreTrapped(Board board, GameState state, Direction move) {
-        final double TRAPPED_TO_DEATH = 10000.0;
+        final double TRAPPED_TO_DEATH = -10000.0;
         Snake snake = state.getOurSnake() ;
         Point head = snake.getHead();
         Point nextHead = head.pointInDirection(move);
         if (!Board.isOnBoard(nextHead)) return 0.0;
         if (snake.moveWouldTrap(move, board)) {
-            Object[] emenance = board.moveableRegion( head, new Point[]{ nextHead } );
+            Object[] emenance = board.moveableRegion(nextHead, null);
             boolean[][] movableRegion = (boolean[][]) emenance[0];
             int squaresInRegion = (int) emenance[1];
-            if (movesUntilSnakeUntrapped(movableRegion, snake) < squaresInRegion) return TRAPPED_TO_DEATH;
-            return TRAPPED_TO_DEATH / 2;
+            int movesUntilUntrapped = movesUntilSnakeUntrapped(movableRegion, snake);
+            if (movesUntilUntrapped < squaresInRegion) {
+                return (1.0 - movesUntilUntrapped / squaresInRegion) * TRAPPED_TO_DEATH;
+            } else {
+                return TRAPPED_TO_DEATH;
+            }
         }
         return 0.0;
     }
@@ -244,7 +255,7 @@ public class Basilisk extends Strategy  {
 
     @Override
     public Direction decideMove(GameState state, OpponentModel[] opponentModels, int snakeNumber) {
-       Board board = new Board(state);
+       Board board = state.getBoard();
        return normalDecision(board, state, opponentModels, snakeNumber);
     }
 

@@ -8,6 +8,7 @@ public class GameState {
     private Apple[] apples;
     private Obstacle[] obstacles;
     private int ourSnakeNumber;
+    private Board board;
 
     public GameState(String[] initialisationStrings, Obstacle[] obstacles) {
         assert(initialisationStrings.length > 0);
@@ -31,6 +32,8 @@ public class GameState {
         for (int i = FIRST_SNAKE_INDEX; i < initialisationStrings.length; i++) {
             snakes[i - FIRST_SNAKE_INDEX] = new Snake(initialisationStrings[i]);
         }
+
+        board = new Board(this);
     }
 
     public Snake[] getSnakes() {
@@ -63,5 +66,9 @@ public class GameState {
 
     public Snake getOurSnake() {
         return snakes[ourSnakeNumber];
+    }
+
+    public Board getBoard() {
+        return board;
     }
 }
