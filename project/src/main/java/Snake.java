@@ -65,6 +65,10 @@ public class Snake {
         return this.body.getFirst();
     }
 
+    public Point getEnd() {
+        return this.body.getLast();
+    }
+
     public Point getSecondPoint() {
         if (this.body.size() > 1) {
             return this.body.get(1);
@@ -111,16 +115,48 @@ public class Snake {
     }
 
     /**
+     * Checks whether the snake in its current state is trapped
+     * @param board
+     * @return
+     */
+    public boolean isTrapped(Board board) {
+        return board.approximateShortestPath(getHead(), getEnd()) == null;
+    }
+
+    /**
+     * Decides whether a move will result this snake being trapped. A snake is trapped when it cannot reach its tail
+     * @param direction Direction to move the snake
+     * @param board The board on which to evaluate whether the snake will be trapped
+     * @return True if the snake will be trapped
+     */
+    public boolean moveWouldTrap(Direction direction, Board board) {
+        Point nextPoint = this.getHead().pointInDirection(direction);
+        return pointsWouldTrap(board, new Point[]{ nextPoint } );
+    }
+
+    /**
+     * Determines if whether ensuring that, on a board, setting the squares corresponding at the specified points to non-traversable would result in this snake being trapped.
+     * @param board The board on which to check check if snake is trapped
+     * @param points Points to set to non-empty. Assumes these are all on the board.
+     * @return True if the snake is trapped when specified points are non-traversable
+     */
+    public boolean pointsWouldTrap(Board board, Point[] points) {
+        for(Point point : points) assert(Board.isOnBoard(point)); //Ensures that all points are on the board
+
+        return board.approximateShortestPath(this.getHead(), this.getEnd(), points) == null;
+    }
+
+    /**
      * This method finds the possible allowed moved that a snake can make. These are moves those that are not in the same direction of the snake and are in the board
      * @return array with the next squares the snake can move too
      */
     public Point[] futureAllowedPoints() {
         LinkedList<Point> points = new LinkedList<Point>();
         Point head = getHead();
-        for(Direction direction : currentDirection().otherDirections()) {
+        Direction oppositDirection = currentDirection().oppositDirection();
+        for(Direction direction : Direction.values()) {
             Point possibility = head.pointInDirection(direction);
-            if(Board.isOnBoard(possibility)) points.add(possibility);
-
+            if(Board.isOnBoard(possibility) && direction != oppositDirection) points.add(possibility);
         }
         return points.toArray(new Point[points.size()]);
     }

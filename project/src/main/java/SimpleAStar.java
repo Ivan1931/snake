@@ -9,8 +9,8 @@ public class SimpleAStar extends Strategy {
         Board board = new Board(state);
         Apple[] apples = state.getApples();
         Point head = state.getOurSnake().getHead();
-        Point[] pathToAppleOne = board.aproximateShortestPath(head, apples[0]);
-        Point[] pathToAppleTwo = board.aproximateShortestPath(head, apples[1]);
+        Point[] pathToAppleOne = board.approximateShortestPath(head, apples[0]);
+        Point[] pathToAppleTwo = board.approximateShortestPath(head, apples[1]);
         if (pathToAppleOne != null && pathToAppleTwo != null) {
             if (pathToAppleOne.length > pathToAppleTwo.length) {
                 return head.directionBetween(pathToAppleTwo[1]);

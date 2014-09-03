@@ -10,7 +10,6 @@ public class Program {
     public static void main(String[] args) throws IOException {
         Reader reader = new Reader();
         String initial = reader.readInitialState();
-        System.out.println("log " + initial);
         GameController controller = new GameController(new Basilisk());
         String[] currentStateRepresentation = reader.readNextGameState();
         String[] previousStateRepresentation = null;
@@ -26,7 +25,7 @@ public class Program {
             // Log what our dead snake looked like
             if(currentLength < previousLength) {
                 Logger.log(previousStateRepresentation);
-                Logger.log("=");
+                Logger.log("*");
             }
 
             try {

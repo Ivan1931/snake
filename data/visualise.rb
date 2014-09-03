@@ -46,7 +46,7 @@ snake_num = 0
 
 def read_world(str)
   lines = str.split "\n"
-  lines = lines[1..-1] if lines.first.nil?
+  lines = lines.select {|line| line != "" }
   world = Array.new(50) {Array.new(50, nil)}
   2.times do |i|
     x,y = apple_coords lines[i]

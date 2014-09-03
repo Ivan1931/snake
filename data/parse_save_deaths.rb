@@ -12,6 +12,7 @@ Dir.chdir "deaths"
 
 states.each_with_index do |state, i|
   if state != ""
-    save_state ARGV[1], i, state
+    group_name = (ARGV[1].nil?) ? ARGV.first : ARGV[1]
+    save_state group_name, i, state
   end
 end

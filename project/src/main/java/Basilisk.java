@@ -1,3 +1,4 @@
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -10,7 +11,7 @@ public class Basilisk extends Strategy  {
 
         for(Snake snake : snakes) {
             if(snake.isAlive()) {
-                Point[] path = board.aproximateShortestPath(snake.getHead(), apple);
+                Point[] path = board.approximateShortestPath(snake.getHead(), apple);
                 if (path != null && (minPath == null || minPath.length > path.length)) {
                     minPath = path;
                 }
@@ -37,8 +38,8 @@ public class Basilisk extends Strategy  {
         PathComparator pathComparator = new PathComparator();
 
         Point[][] ourPathsToApples = new Point[][] {
-                board.aproximateShortestPath(head, apples[0]),
-                board.aproximateShortestPath(head, apples[1])
+                board.approximateShortestPath(head, apples[0]),
+                board.approximateShortestPath(head, apples[1])
         };
 
         Point[][] shortestHostilePathsToApples = new Point[][] {
@@ -72,7 +73,7 @@ public class Basilisk extends Strategy  {
         Point head = state.getOurSnake().getHead();
         do {
             leastDensePoint = leastDensePoints.poll().point;
-            pathToLeastDensePoint = board.aproximateShortestPath(head, leastDensePoint);
+            pathToLeastDensePoint = board.approximateShortestPath(head, leastDensePoint);
         } while (!leastDensePoints.isEmpty() && pathToLeastDensePoint == null);
 
         return pathToLeastDensePoint;
@@ -135,26 +136,58 @@ public class Basilisk extends Strategy  {
     private double scoreCollosionWithHostile(Board board, GameState state, Direction move) {
         final double SNAKE_ABOUT_TO_CHOW = -7000.0;
         Point potentialMove = state.getOurSnake().getHead().pointInDirection(move);
-        for(Snake hostile : state.getHostileSnakes()) {
-            for(Point futurePoint : hostile.futureAllowedPoints()) {
-                if (futurePoint.equals(potentialMove)) return SNAKE_ABOUT_TO_CHOW;
+        Snake[] hostileSnakes = state.getHostileSnakes();
+        for(Snake hostile : hostileSnakes) {
+            Point[] hostileFuturePoints = hostile.futureAllowedPoints();
+            for(Point futurePoint : hostileFuturePoints) {
+                if (futurePoint.equals(potentialMove)) {
+                    return SNAKE_ABOUT_TO_CHOW;
+                }
             }
         }
-        return 500.0;
+        return 0.0;
     }
 
-    private boolean isTrapped(Board board, int reachedSquares) {
-        final int totalSquares = Board.BOARD_SIZE * Board.BOARD_SIZE;
-        final int totalEmptySquares = totalSquares - board.numberNonEmptySquares();
-        return reachedSquares != totalEmptySquares;
+    private int movesUntilSnakeUntrapped(boolean[][] trappedRegion, Snake snake) {
+        LinkedList<Point> body = snake.getBody();
+        int count = 0;
+        boolean foundTrapped;
+        for(Point segment : body) {
+            Point[] adjacentBlocks = segment.getAllNeighbours();
+            foundTrapped = false;
+            for(Point neighbour : adjacentBlocks) {
+                if (Board.isOnBoard(neighbour) && trappedRegion[neighbour.getX()][neighbour.getY()]) {
+                    foundTrapped = true;
+                }
+            }
+            if(!foundTrapped) {
+                return snake.getLength() - count - 1;
+            }
+            count++;
+        }
+        return snake.getLength();
     }
 
-    @Override
-    public Direction decideMove(GameState state, OpponentModel[] opponentModels, int snakeNumber) {
+    private double scoreTrapped(Board board, GameState state, Direction move) {
+        final double TRAPPED_TO_DEATH = 10000.0;
+        Snake snake = state.getOurSnake() ;
+        Point head = snake.getHead();
+        Point nextHead = head.pointInDirection(move);
+        if (!Board.isOnBoard(nextHead)) return 0.0;
+        if (snake.moveWouldTrap(move, board)) {
+            Object[] emenance = board.moveableRegion( head, new Point[]{ nextHead } );
+            boolean[][] movableRegion = (boolean[][]) emenance[0];
+            int squaresInRegion = (int) emenance[1];
+            if (movesUntilSnakeUntrapped(movableRegion, snake) < squaresInRegion) return TRAPPED_TO_DEATH;
+            return TRAPPED_TO_DEATH / 2;
+        }
+        return 0.0;
+    }
+
+    private Direction normalDecision(Board board, GameState state,  OpponentModel[] opponentModels, int snakeNumber) {
         final double EAT_APPLE_SCORE = 5000.0;
         final double LEAST_DENSE_SQUARE_SCORE = 1000.0;
         Snake ourSnake = state.getOurSnake();
-        Board board = new Board(state);
         Point head = ourSnake.getHead();
         Direction[] allowedDirections = ourSnake.currentDirection().oppositDirection().otherDirections();
 
@@ -166,7 +199,7 @@ public class Basilisk extends Strategy  {
 
         Point[] pathToLeastDenseSquare = getPathToLeastDenseSquare(state, board);
         Direction directionToLeastDense = head.directionBetween(pathToLeastDenseSquare[1]);
-        double bestDirectionScore = Double.MIN_VALUE;
+        double bestDirectionScore = -10000000.0;
         Direction bestDirection = null;
         for(Direction direction : allowedDirections) {
             double currentDirectionScore = moveDeathScore(direction, board, state);
@@ -175,6 +208,8 @@ public class Basilisk extends Strategy  {
             if (directionToLeastDense == direction) currentDirectionScore += LEAST_DENSE_SQUARE_SCORE;
 
             currentDirectionScore += scoreCollosionWithHostile(board, state, direction);
+
+            currentDirectionScore += scoreTrapped(board, state, direction);
 
             if (currentDirectionScore > bestDirectionScore) {
                 bestDirectionScore = currentDirectionScore;
@@ -185,4 +220,32 @@ public class Basilisk extends Strategy  {
         if (bestDirection == null) return ourSnake.currentDirection();
         return bestDirection;
     }
+
+    private Direction trappedDecision(Board board, GameState state, OpponentModel[] opponentModels, int snakeNumber) {
+        Snake ourSnake = state.getOurSnake();
+        Point head = ourSnake.getHead();
+        Point thirdPoint = ourSnake.getBody().get(2);
+        Point[] pathToThird = board.approximateShortestPath(head, thirdPoint);
+        Direction directionToThird = head.directionBetween(pathToThird[1]);
+        Direction[] possibleDirections = ourSnake.currentDirection().otherDirections();
+        Direction bestDirection = directionToThird;
+        double bestDirectionScore = -1000000;
+        for(Direction direction : possibleDirections) {
+            double currentDirectionScore = moveDeathScore(direction, board, state);
+            if(direction == directionToThird) currentDirectionScore += 500.0;
+
+            if (currentDirectionScore > bestDirectionScore) {
+                bestDirectionScore = currentDirectionScore;
+                bestDirection = direction;
+            }
+        }
+        return bestDirection;
+    }
+
+    @Override
+    public Direction decideMove(GameState state, OpponentModel[] opponentModels, int snakeNumber) {
+       Board board = new Board(state);
+       return normalDecision(board, state, opponentModels, snakeNumber);
+    }
+
 }

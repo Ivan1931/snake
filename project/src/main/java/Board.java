@@ -95,6 +95,19 @@ public class Board {
         return this.board;
     }
 
+    public Point[] getTraversableNeighbouringPoints(Point p) {
+        //Omfg!!! java sucks so fucking much. Why the fuck cant you just have a map function! is it too much to ask!!!!
+        if (Board.isOnBoard(p)) {
+            Point[] allNeighbours = p.getAllNeighbours();
+            LinkedList<Point> possibleNeighbours = new LinkedList<Point>();
+            for(Point point : allNeighbours) {
+                if (Board.isOnBoard(point) && (isEmpty(point) || isApple(point))) possibleNeighbours.add(point);
+            }
+            return possibleNeighbours.toArray(new Point[possibleNeighbours.size()]);
+        }
+        return null;
+    }
+
     /**
      * @return number of squares that are not empty
      */
@@ -115,19 +128,39 @@ public class Board {
         return ret.toArray(new Point[ret.size()]);
     }
 
+    public boolean isTraversable(Point point) {
+        BoardSquare atPoint = getPoint(point);
+        return atPoint == BoardSquare.ANYTHING || atPoint == BoardSquare.APPLE || atPoint == BoardSquare.EMPTY;
+    }
+
     public boolean isApple(Point point) {
         return getPoint(point) == BoardSquare.APPLE;
     }
 
     //This performs an a-star algorithm using euclidean distance
-
     /**
      * Performs an A* search to find an aproximate shortest path from one end to another
      * @param start Must be inside the graph
      * @param end Must be an empty square or an apple
      * @return An array of points from the starting point to the end point which forms a path to be taken between the points
      */
-    public Point[] aproximateShortestPath(Point start, Point end) {
+    public Point[] approximateShortestPath(Point start, Point end) {
+        return approximateShortestPath(start, end, null);
+    }
+
+    /**
+     * Performs A* algorithm to find aproximate shortest path between two points on the board.
+     * @param start Starting point, may be non-traversable
+     * @param end End point, may be non-traversable
+     * @param additionalPointsToAvoid These are points that cannot be traversed. They are not empty squares on a board
+     * @return Null if there is no possible path. Otherwise a path from start to end including start and end
+     */
+    public Point[] approximateShortestPath(Point start, Point end, Point[] additionalPointsToAvoid) {
+        HashSet<Point> avoid = new HashSet<Point>();
+
+        if (additionalPointsToAvoid != null)
+            Collections.addAll(avoid, additionalPointsToAvoid);
+
         PriorityQueue<Tuple> frontier = new PriorityQueue<Tuple>();
         frontier.add(new Tuple(start, 0.0));
         HashMap<Point, Point> cameFrom = new HashMap<Point, Point>();
@@ -137,14 +170,16 @@ public class Board {
         Point current;
         do {
             current = frontier.poll().point;
-            Point[] neighbours = possibleNeighbouringPoints(current);
+            Point[] neighbours = current.getAllNeighbours();
             for(Point next : neighbours) {
-                double newCost = costSoFar.get(current) + 1; // 1 is the cost of moving to that square since all parts are neighbours
-                if (!costSoFar.containsKey(next) || newCost < costSoFar.get(next)) {
-                    costSoFar.put(next, newCost);
-                    double priority = newCost + end.manhattanDistance(next);
-                    frontier.add(new Tuple(next, priority));
-                    cameFrom.put(next, current);
+                if (!avoid.contains(next) && Board.isOnBoard(next) && (isTraversable(next) || next.equals(end))) {
+                    double newCost = costSoFar.get(current) + 1; // 1 is the cost of moving to that square since all parts are neighbours
+                    if (!costSoFar.containsKey(next) || newCost < costSoFar.get(next)) {
+                        costSoFar.put(next, newCost);
+                        double priority = newCost + end.manhattanDistance(next);
+                        frontier.add(new Tuple(next, priority));
+                        cameFrom.put(next, current);
+                    }
                 }
             }
         } while (!frontier.isEmpty() && !current.equals(end));
@@ -162,18 +197,6 @@ public class Board {
         return path.toArray(new Point[path.size()]);
     }
 
-    public Point[] possibleNeighbouringPoints(Point p) {
-        //Omfg!!! java sucks so fucking much. Why the fuck cant you just have a map function! is it too much to ask!!!!
-        if (Board.isOnBoard(p)) {
-            Point[] allNeighbours = p.getAllNeighbours();
-            LinkedList<Point> possibleNeighbours = new LinkedList<Point>();
-            for(Point point : allNeighbours) {
-                if (Board.isOnBoard(point) && (isEmpty(point) || isApple(point))) possibleNeighbours.add(point);
-            }
-            return possibleNeighbours.toArray(new Point[possibleNeighbours.size()]);
-        }
-        return null;
-    }
 
     public boolean isFull() {
         return nonEmptySpaces.size() == (BOARD_SIZE * BOARD_SIZE);
@@ -201,6 +224,34 @@ public class Board {
         }
 
         return orderedEmptySpaces;
+    }
+
+    /**
+     * Marks every point which a snake could theoretically access from a point. If a point is traversable and adjacent to another traversable point it is marked as traversable
+     * @param point The point from which access is checked
+     * @return Returns an array of booleans where all spaces that are traversable are set to true. Also returns the number of traversable spaces
+     */
+    public Object[] moveableRegion(Point point, Point[] additionBlockingPoints) {
+        boolean[][] emenance = new boolean[BOARD_SIZE][BOARD_SIZE];
+        HashSet<Point> blockedPoints = new HashSet<Point>();
+        Collections.addAll(blockedPoints, additionBlockingPoints);
+        emenance[point.getX()][point.getY()] = true;
+        LinkedList<Point> frontier = new LinkedList<Point>();
+        frontier.add(point);
+        int reachable = 0;
+        while(!frontier.isEmpty()) {
+            Point current = frontier.poll();
+            Point[] neighbours = adjacentEmptyPoints(current);
+            for(Point neighbour : neighbours) {
+                if (!emenance[neighbour.getX()][neighbour.getY()] && !blockedPoints.contains(neighbour)) {
+                    emenance[neighbour.getX()][neighbour.getY()] = true;
+                    frontier.add(neighbour);
+                    reachable++;
+                }
+            }
+        }
+
+        return new Object[]{emenance, reachable};
     }
 
 
