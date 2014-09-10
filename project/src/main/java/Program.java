@@ -18,7 +18,7 @@ public class Program {
         double currentLength = 0.0;
 
         boolean wasTrapped = false;
-        final int counterInterval = 3000;
+        final int counterInterval = 1000;
         int games = 0;
 
         while (currentStateRepresentation != null){
@@ -55,12 +55,15 @@ public class Program {
             previousLength = currentLength;
             previousStateRepresentation = currentStateRepresentation;
             currentStateRepresentation = reader.readNextGameState();
+
             if (games % counterInterval == 0) {
                 Logger.log("*******");
                 for (Map.Entry<String, Double> kv : controller.gameStats().entrySet()) {
                     Logger.log(kv.getKey() + ":" + kv.getValue());
                 }
+                Logger.log("*******");
             }
+
         }
         reader.close();
     }

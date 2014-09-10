@@ -17,6 +17,7 @@ public class Snake {
         this.kills = parseKills(status);
         this.length = parseLength(status);
         this.body = parseBody(status);
+        //assert(this.body.size() == this.length);
     }
 
     private String[] breakUpStatusString(String statusString) {

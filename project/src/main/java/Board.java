@@ -208,15 +208,17 @@ public class Board {
      * This is measured by a formula that finds the radial distance between two points and uses that in the gravity formula
      * @return the point that should be in the most empty section of the board
      */
-    public PriorityQueue<Tuple> getMostEmptySpace() {
+    public PriorityQueue<Tuple> getMostEmptySpace(GameState state) {
         PriorityQueue<Tuple> orderedEmptySpaces = new PriorityQueue<>();
         for (int i = 0; i < BOARD_SIZE; i += 2) {
             for (int j = 0; j < BOARD_SIZE; j += 2) {
                 Point point = new Point(i, j);
                 if(isEmpty(point)) {
                     double totalDensity = 0.0;
-                    for(Point nonEmptyPoint : nonEmptySpaces) {
-                        totalDensity += point.gravityDistance(nonEmptyPoint);
+                    for (Snake snake : state.getHostileSnakes()) {
+                        for(Point nonEmptyPoint : snake.getBody()) {
+                            totalDensity += point.gravityDistance(nonEmptyPoint, 20.0);
+                        }
                     }
                     orderedEmptySpaces.add(new Tuple(point, totalDensity));
                 }

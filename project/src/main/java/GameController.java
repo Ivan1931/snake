@@ -67,7 +67,8 @@ public class GameController {
         gameStats.put("LongestLength", (double)maxLength);
         gameStats.put("Trapped Count", (double)trappedCount);
         gameStats.put("Deaths", (double) deathCount);
-        gameStats.put("Game Length", (double)previousStates.size());
+        gameStats.put("Game Length", (double) previousStates.size());
+        gameStats.put("Total kills", (double) previousStates.getLast().getOurSnake().getKills());
 
         return gameStats;
     }

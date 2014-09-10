@@ -40,6 +40,6 @@ public class BoardTest extends TestCase {
 
         GameState gameState = new GameState(stateStrs, null);
         Board board = new Board(gameState);
-        board.getMostEmptySpace();
+        board.getMostEmptySpace(gameState);
     }
 }

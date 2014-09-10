@@ -87,14 +87,15 @@ public class Point {
      * @param that This other point
      * @return a positive double. MAX_VALUE if the argument point is equal to this point
      */
-    public double gravityDistance(Point that) {
-        final double G = 1.0;
+    public double gravityDistance(Point that, double G) {
         if(this.equals(that)) return Double.MAX_VALUE;
-        return G / Math.pow(
-                Math.sqrt(
+        return G / Math.sqrt(
                     Math.abs(xDiff(that)) + Math.abs(yDiff(that))
-                ),
-            2);
+            );
+    }
+
+    public double gravityDistance(Point that) {
+        return this.gravityDistance(that, 10.0);
     }
 
     @Override
