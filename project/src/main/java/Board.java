@@ -145,7 +145,11 @@ public class Board {
      * @return An array of points from the starting point to the end point which forms a path to be taken between the points
      */
     public Point[] approximateShortestPath(Point start, Point end) {
-        return approximateShortestPath(start, end, null);
+        return approximateShortestPath(start, end, null, null);
+    }
+
+    public Point[] approximateShortestPath(Point start, Point end, Point[] additionalPointsToAvoid) {
+        return approximateShortestPath(start, end, additionalPointsToAvoid, null);
     }
 
     /**
@@ -155,7 +159,7 @@ public class Board {
      * @param additionalPointsToAvoid These are points that cannot be traversed. They are not empty squares on a board
      * @return Null if there is no possible path. Otherwise a path from start to end including start and end
      */
-    public Point[] approximateShortestPath(Point start, Point end, Point[] additionalPointsToAvoid) {
+    public Point[] approximateShortestPath(Point start, Point end, Point[] additionalPointsToAvoid, double[][] costBoard) {
         HashSet<Point> avoid = new HashSet<Point>();
 
         if (additionalPointsToAvoid != null)
@@ -173,7 +177,13 @@ public class Board {
             Point[] neighbours = current.getAllNeighbours();
             for(Point next : neighbours) {
                 if (!avoid.contains(next) && Board.isOnBoard(next) && (isTraversable(next) || next.equals(end))) {
-                    double newCost = costSoFar.get(current) + 1; // 1 is the cost of moving to that square since all parts are neighbours
+                    double newCost = costSoFar.get(current);
+                    // 1 is the cost of moving to that square since all parts are neighbours
+                    if (costBoard != null)  {
+                        newCost += costBoard[next.getX()][next.getY()];
+                    } else {
+                        newCost += 1;
+                    }
                     if (!costSoFar.containsKey(next) || newCost < costSoFar.get(next)) {
                         costSoFar.put(next, newCost);
                         double priority = newCost + end.manhattanDistance(next);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="SimpleAStarTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2014-09-11T09:10:20" hostname="ivans-machine" time="0.224">
+<testsuite name="SimpleAStarTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2014-09-11T18:52:21" hostname="ivans-machine" time="0.321">
   <properties/>
-  <testcase name="testDecideMove" classname="SimpleAStarTest" time="0.004"/>
+  <testcase name="testDecideMove" classname="SimpleAStarTest" time="0.005"/>
   <testcase name="testDecideMove" classname="SimpleAStarTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

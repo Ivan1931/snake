@@ -1,3 +1,4 @@
+import javax.swing.plaf.nimbus.State;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.SynchronousQueue;
@@ -22,7 +23,15 @@ public class Basilisk extends Strategy  {
         return minPath;
     }
 
-    private Point[] getWeightedCostPath(GameState state) {
+    /**
+     * Creates a array where each element contains a value which can be interpreted as a cost of traversing the corresponding square
+     * In the given gamestate. This is calculated by the sum of a function found in the Point class called "gravityDistance" which is a inverse
+     * square route function of distance between a segment of a hostile snake and the point being considered. This is calculated for all
+     * segmenents of all hostile snakes and every traversable point.
+     * @param state Current state of the game from which to create the distance map
+     * @return N x N array where each element corresponds to the traversal cost of that square
+     */
+    private double[][] createCostBoard(GameState state) {
         double[][] costBoard = new double[Board.BOARD_SIZE][Board.BOARD_SIZE];
         Board board = state.getBoard();
         Snake[] hostiles = state.getHostileSnakes();
@@ -39,17 +48,26 @@ public class Basilisk extends Strategy  {
                 }
             }
         }
+        return costBoard;
     }
 
     /**
-     * This method will return the best possible path towards an apple if any
-     * It performs A* for all known apples for each snake. It will then return our shortest path if our path is shorter than all the other snakes
-     * If not it will return null
-     * @param state State of the game
-     * @param board Board derived from state
-     * @return null if our possible paths are not the shortest. Otherwise our shortest path
+     * Returns a weighted cost shortest path from our board to both apples. This calculates a cost for traversing each square and uses this
+     * to assign costs to while running an A* algorithm
+     * @param state current game state
+     * @return an array with two elements, each with either path to each apple or null if no path exists
      */
-    private Point[] getOurBestPath(GameState state, Board board) {
+    private Point[][] getWeightedCostPath(GameState state, double[][] costBoard) {
+        Apple[] apples = state.getApples();
+        Point head = state.getOurSnake().getHead();
+        Board board = state.getBoard();
+
+        return new Point[][] {board.approximateShortestPath(head, apples[0], null, costBoard),
+                              board.approximateShortestPath(head, apples[1], null, costBoard)};
+    }
+
+    private Point[] getBestPathToApples(GameState state, Point[][] ourPathsToApples) {
+        Board board = state.getBoard();
         Snake[] hostileSnakes = state.getHostileSnakes();
         Apple[] apples = state.getApples();
         Snake ourSnake = state.getOurSnake();
@@ -57,10 +75,6 @@ public class Basilisk extends Strategy  {
 
         PathComparator pathComparator = new PathComparator();
 
-        Point[][] ourPathsToApples = new Point[][] {
-                board.approximateShortestPath(head, apples[0]),
-                board.approximateShortestPath(head, apples[1])
-        };
 
         Point[][] shortestHostilePathsToApples = new Point[][] {
                 shortestPathForApple(apples[0], board, hostileSnakes),
@@ -81,19 +95,42 @@ public class Basilisk extends Strategy  {
     }
 
     /**
+     * This method will return the best possible path towards an apple if any
+     * It performs A* for all known apples for each snake. It will then return our shortest path if our path is shorter than all the other snakes
+     * If not it will return null
+     * @param state State of the game
+     * @return null if our possible paths are not the shortest. Otherwise our shortest path
+     */
+    private Point[] getBestPathToApples(GameState state) {
+        Board board = state.getBoard();
+        Point head = state.getOurSnake().getHead();
+        Apple[] apples = state.getApples();
+        Point[][] ourPathsToApples = new Point[][] {
+                board.approximateShortestPath(head, apples[0]),
+                board.approximateShortestPath(head, apples[1])
+        };
+        return getBestPathToApples(state, ourPathsToApples);
+    }
+
+    private Point[] getBestPathToApples(GameState state,  double[][] costBoard) {
+       Point[][] bestPathsToApples = getWeightedCostPath(state, costBoard);
+       return getBestPathToApples(state, bestPathsToApples);
+    }
+
+    /**
      * This gets the path to the least dense point that is accessible to us
      * @param state
-     * @param board
      * @return Path to the least dense point if it exists or null if there is no least dense point we can travel too
      */
-    private Point[] getPathToLeastDenseSquare(GameState state,  Board board) {
+    private Point[] getPathToLeastDenseSquare(GameState state,  double[][] costBoard) {
+        Board board = state.getBoard();
         PriorityQueue<Board.Tuple> leastDensePoints = board.getMostEmptySpace(state);
         Point leastDensePoint;
         Point[] pathToLeastDensePoint;
         Point head = state.getOurSnake().getHead();
         do {
             leastDensePoint = leastDensePoints.poll().point;
-            pathToLeastDensePoint = board.approximateShortestPath(head, leastDensePoint);
+            pathToLeastDensePoint = board.approximateShortestPath(head, leastDensePoint, null, costBoard);
         } while (!leastDensePoints.isEmpty() && pathToLeastDensePoint == null);
 
         return pathToLeastDensePoint;
@@ -221,14 +258,15 @@ public class Basilisk extends Strategy  {
         Snake ourSnake = state.getOurSnake();
         Point head = ourSnake.getHead();
         Direction[] allowedDirections = ourSnake.currentDirection().oppositDirection().otherDirections();
+        double[][] costBoard = createCostBoard(state);
 
-        Point[] shortestOfOurPaths = getOurBestPath(state, board);
+        Point[] shortestOfOurPaths = getBestPathToApples(state, costBoard);
         Direction shortestPath = null;
         if(shortestOfOurPaths != null) {
             shortestPath = head.directionBetween(shortestOfOurPaths[1]);
         }
 
-        Point[] pathToLeastDenseSquare = getPathToLeastDenseSquare(state, board);
+        Point[] pathToLeastDenseSquare = getPathToLeastDenseSquare(state, costBoard);
         Direction directionToLeastDense = null;
         if (pathToLeastDenseSquare != null)
             directionToLeastDense = head.directionBetween(pathToLeastDenseSquare[1]);

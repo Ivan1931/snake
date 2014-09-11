@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="SnakeTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2014-09-11T09:10:20" hostname="ivans-machine" time="0.224">
+<testsuite name="SnakeTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2014-09-11T18:52:21" hostname="ivans-machine" time="0.321">
   <properties/>
-  <testcase name="testEndPoints" classname="SnakeTest" time="0.0"/>
+  <testcase name="testEndPoints" classname="SnakeTest" time="0.001"/>
   <testcase name="testCreation" classname="SnakeTest" time="0.004"/>
   <testcase name="testEndPoints" classname="SnakeTest" time="0.0"/>
   <testcase name="testCreation" classname="SnakeTest" time="0.003"/>
