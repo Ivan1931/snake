@@ -22,6 +22,25 @@ public class Basilisk extends Strategy  {
         return minPath;
     }
 
+    private Point[] getWeightedCostPath(GameState state) {
+        double[][] costBoard = new double[Board.BOARD_SIZE][Board.BOARD_SIZE];
+        Board board = state.getBoard();
+        Snake[] hostiles = state.getHostileSnakes();
+        for (int i = 0; i < Board.BOARD_SIZE; i++) {
+            for (int j = 0; j < Board.BOARD_SIZE; j++) {
+                Point point = new Point(i, j);
+                costBoard[i][j] = 1.0;
+                if (board.isTraversable(point)) {
+                    for(Snake snake : hostiles) {
+                        for(Point segment : snake.getBody()) {
+                            costBoard[i][j] += segment.gravityDistance(point, 10.0);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * This method will return the best possible path towards an apple if any
      * It performs A* for all known apples for each snake. It will then return our shortest path if our path is shorter than all the other snakes
@@ -149,38 +168,6 @@ public class Basilisk extends Strategy  {
         return 0.0;
     }
 
-    /**
-     * Returns all the squares that all hostile snakes can access in at least three moves
-     * @param n The number of moves to look forward
-     * @param state current game state
-     * @return HashSet containing all possible points that can be traversed by a hostile snake within n moves
-     */
-    private HashSet<Point> hostileMovableRegion(GameState state, int n) {
-        Board board = state.getBoard();
-        HashSet<Point> movableRegion = new HashSet<Point>();
-        for (Snake hostiles : state.getHostileSnakes()) {
-            HashMap<Point, Integer> costSoFar = new HashMap<Point, Integer>();
-            LinkedList<Point> frontier = new LinkedList<Point>();
-            frontier.add(hostiles.getHead());
-            costSoFar.put(hostiles.getHead(), 0);
-            while (!frontier.isEmpty()) {
-                Point current = frontier.poll();
-                Point[] neighbours = current.getAllNeighbours();
-                for (Point neighbour : neighbours) {
-                    if (Board.isOnBoard(neighbour) &&
-                            board.isTraversable(neighbour) &&
-                            costSoFar.get(current) < n) {
-                        frontier.add(neighbour);
-                        costSoFar.put(neighbour, costSoFar.get(current) + 1);
-                        movableRegion.add(neighbour);
-                    }
-                }
-            }
-        }
-        return movableRegion;
-
-    }
-
     private int movesUntilSnakeUntrapped(boolean[][] trappedRegion, Snake snake) {
         LinkedList<Point> body = snake.getBody();
         int count = 0;
@@ -247,16 +234,12 @@ public class Basilisk extends Strategy  {
             directionToLeastDense = head.directionBetween(pathToLeastDenseSquare[1]);
         double bestDirectionScore = -10000000.0;
         Direction bestDirection = null;
-        HashSet<Point> hostileSnakeMovablePoints = hostileMovableRegion(state, 2);
         for(Direction direction : allowedDirections) {
             double currentDirectionScore = moveDeathScore(direction, board, state);
-            Point pointInDirection = head.pointInDirection(direction);
 
             if (shortestPath != null && shortestPath == direction) currentDirectionScore += EAT_APPLE_SCORE;
 
             if (directionToLeastDense == direction) currentDirectionScore += LEAST_DENSE_SQUARE_SCORE;
-
-            if (hostileSnakeMovablePoints.contains(pointInDirection)) currentDirectionScore += HOSTILE_PROXIMITY_SCORE;
 
             currentDirectionScore += scoreCollosionWithHostile(board, state, direction);
 

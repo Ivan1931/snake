@@ -7,6 +7,7 @@ end
 data_file = File.read ARGV[0]
 
 states = data_file.split /(=|\*)/
+states = states.select {|a| a != "*" and a != "="}
 
 Dir.chdir "deaths"
 

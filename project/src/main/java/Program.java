@@ -12,25 +12,34 @@ public class Program {
         Reader reader = new Reader();
         String initial = reader.readInitialState();
         GameController controller = new GameController(new Basilisk());
+        GameState nextState;
+        Direction nextMove;
         String[] currentStateRepresentation = reader.readNextGameState();
         String[] previousStateRepresentation = null;
         double previousLength = Double.MAX_VALUE;
         double currentLength = 0.0;
+
+        long timeA = 0;
+        long timeB = 0;
+        long previousA = 0;
+        long previousB = 0;
 
         boolean wasTrapped = false;
         final int counterInterval = 1000;
         int games = 0;
 
         while (currentStateRepresentation != null){
+            timeA = System.currentTimeMillis();
             games++;
-            GameState nextState = new GameState(currentStateRepresentation, null);
+            nextState = new GameState(currentStateRepresentation, null);
             controller.update(nextState);
-            Direction nextMove;
             currentLength = nextState.getOurSnake().getLength();
 
             // Log what our dead snake looked like
             if(currentLength < previousLength) {
                 Logger.log(previousStateRepresentation);
+                Logger.log("*");
+                Logger.log("Decision Time: " + (previousB - previousA));
                 Logger.log("*");
             }
             //log us being trapped
@@ -47,22 +56,26 @@ public class Program {
             try {
                 nextMove = controller.move();
             } catch (Exception e) {
+                Logger.log("We had an exception and thus continued straight");
                 Logger.log(e.getMessage());
                 nextMove = nextState.getOurSnake().currentDirection();
             }
+            timeB = System.currentTimeMillis();
 
             System.out.println(Direction.asInt(nextMove));
             previousLength = currentLength;
             previousStateRepresentation = currentStateRepresentation;
             currentStateRepresentation = reader.readNextGameState();
+            previousA = timeA;
+            previousB = timeB;
 
-            if (games % counterInterval == 0) {
+            /*if (games % counterInterval == 0) {
                 Logger.log("*******");
                 for (Map.Entry<String, Double> kv : controller.gameStats().entrySet()) {
                     Logger.log(kv.getKey() + ":" + kv.getValue());
                 }
                 Logger.log("*******");
-            }
+            }*/
 
         }
         reader.close();
