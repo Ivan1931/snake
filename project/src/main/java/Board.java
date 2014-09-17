@@ -272,20 +272,21 @@ public class Board {
         return acc;
     }
 
-    class Tuple implements Comparable<Tuple> {
-        public Point point;
-        public double priority;
+}
 
-        public Tuple(Point point, double priority) {
-            this.point = point;
-            this.priority = priority;
-        }
+class Tuple implements Comparable<Tuple> {
+    public Point point;
+    public double priority;
 
-        @Override
-        public int compareTo(Tuple that) {
-            if(this.priority > that.priority) return 1;
-            if(this.priority < that.priority) return -1;
-            return 0;
-        }
+    public Tuple(Point point, double priority) {
+        this.point = point;
+        this.priority = priority;
+    }
+
+    @Override
+    public int compareTo(Tuple that) {
+        if(this.priority > that.priority) return 1;
+        if(this.priority < that.priority) return -1;
+        return 0;
     }
 }

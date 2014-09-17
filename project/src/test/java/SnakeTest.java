@@ -43,6 +43,10 @@ public class SnakeTest extends TestCase {
         assertEquals(snake.getLength(), 340);
     }
 
+    public void testCreationFromData13_6() {
+
+    }
+
     public void testEndPoints() throws Exception {
         String creationString = "alive 26 2 10,12 15,12 15,10";
         Snake snake = new Snake(creationString);

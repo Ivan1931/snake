@@ -13,4 +13,5 @@ public enum BoardSquare {
             default: return "0";
         }
     }
+
 }

@@ -13,6 +13,13 @@ file = File.read ARGV.first
 
 split_file_name = ARGV.first.split("-")
 
-print "private String[] testDataFile#{split_file_name[2]}_#{split_file_name[3]} = {"
+fname = "#{split_file_name[2]}_#{split_file_name[3]}"
+
+print "private String[] testDataFile#{fname} = {"
 make_into_java(file)
-print " }"
+print " };"
+
+puts ""
+puts "public void testDecisionForData#{fname}() {"
+puts "testForState(testDataFile#{fname}, );"
+puts "}"

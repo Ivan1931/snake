@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="BoardTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2014-09-10T21:57:24" hostname="ivans-machine" time="0.192">
+<testsuite name="BoardTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2014-09-17T20:33:46" hostname="ivans-machine" time="0.215">
   <properties/>
   <testcase name="testAproximateShortestPath" classname="BoardTest" time="0.011"/>
   <testcase name="testGetDensityMap" classname="BoardTest" time="0.012"/>
   <testcase name="testAproximateShortestPath" classname="BoardTest" time="0.015"/>
-  <testcase name="testGetDensityMap" classname="BoardTest" time="0.002"/>
+  <testcase name="testGetDensityMap" classname="BoardTest" time="0.005"/>
   <system-out><![CDATA[
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0

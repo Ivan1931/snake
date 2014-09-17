@@ -11,7 +11,7 @@ states = data_file.split /(=|\*)/
 Dir.chdir "deaths"
 
 states.each_with_index do |state, i|
-  if state != "" and !state.nil? and state != "\n" and state != " "
+  if state != "" and !state.nil? and state != "\n" and state != " " and state != "*"
     group_name = (ARGV[1].nil?) ? ARGV.first : ARGV[1]
     save_state group_name, i, state
   end
