@@ -159,25 +159,25 @@ public class Board {
      * @param additionalPointsToAvoid These are points that cannot be traversed. They are not empty squares on a board
      * @return Null if there is no possible path. Otherwise a path from start to end including start and end
      */
-    public Point[] approximateShortestPath(Point start, Point end, Point[] additionalPointsToAvoid, double[][] costBoard) {
+    public Point[] approximateShortestPath(Point start, Point end, Point[] additionalPointsToAvoid, float[][] costBoard) {
         HashSet<Point> avoid = new HashSet<Point>();
 
         if (additionalPointsToAvoid != null)
             Collections.addAll(avoid, additionalPointsToAvoid);
 
         PriorityQueue<Tuple> frontier = new PriorityQueue<Tuple>();
-        frontier.add(new Tuple(start, 0.0));
+        frontier.add(new Tuple(start, 0.0f));
         HashMap<Point, Point> cameFrom = new HashMap<Point, Point>();
-        HashMap<Point, Double> costSoFar = new HashMap<Point, Double>();
+        HashMap<Point, Float> costSoFar = new HashMap<Point, Float>();
         cameFrom.put(start, null);
-        costSoFar.put(start, 0.0);
+        costSoFar.put(start, 0.0f);
         Point current;
         do {
             current = frontier.poll().point;
             Point[] neighbours = current.getAllNeighbours();
             for(Point next : neighbours) {
                 if (!avoid.contains(next) && Board.isOnBoard(next) && (isTraversable(next) || next.equals(end))) {
-                    double newCost = costSoFar.get(current);
+                    float newCost = costSoFar.get(current);
                     // 1 is the cost of moving to that square since all parts are neighbours
                     if (costBoard != null)  {
                         newCost += costBoard[next.getX()][next.getY()];
@@ -186,7 +186,7 @@ public class Board {
                     }
                     if (!costSoFar.containsKey(next) || newCost < costSoFar.get(next)) {
                         costSoFar.put(next, newCost);
-                        double priority = newCost + end.manhattanDistance(next);
+                        float priority = newCost + end.manhattanDistance(next);
                         frontier.add(new Tuple(next, priority));
                         cameFrom.put(next, current);
                     }
@@ -224,10 +224,10 @@ public class Board {
             for (int j = 0; j < BOARD_SIZE; j += 2) {
                 Point point = new Point(i, j);
                 if(isEmpty(point)) {
-                    double totalDensity = 0.0;
+                    float totalDensity = 0.0f;
                     for (Snake snake : state.getHostileSnakes()) {
                         for(Point nonEmptyPoint : snake.getBody()) {
-                            totalDensity += point.gravityDistance(nonEmptyPoint, 20.0);
+                            totalDensity += point.gravityDistance(nonEmptyPoint, 20.0f);
                         }
                     }
                     orderedEmptySpaces.add(new Tuple(point, totalDensity));
@@ -282,20 +282,4 @@ public class Board {
         return acc;
     }
 
-    class Tuple implements Comparable<Tuple> {
-        public Point point;
-        public double priority;
-
-        public Tuple(Point point, double priority) {
-            this.point = point;
-            this.priority = priority;
-        }
-
-        @Override
-        public int compareTo(Tuple that) {
-            if(this.priority > that.priority) return 1;
-            if(this.priority < that.priority) return -1;
-            return 0;
-        }
-    }
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="PointTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2014-09-11T18:52:21" hostname="ivans-machine" time="0.126">
+<testsuite name="PointTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2014-09-11T20:49:17" hostname="ivans-machine" time="0.272">
   <properties/>
   <testcase name="testPointCreation" classname="PointTest" time="0.0"/>
   <testcase name="testEquals" classname="PointTest" time="0.0"/>
-  <testcase name="testPointsBetween" classname="PointTest" time="0.0"/>
+  <testcase name="testPointsBetween" classname="PointTest" time="0.001"/>
   <testcase name="testPointCreation" classname="PointTest" time="0.0"/>
   <testcase name="testEquals" classname="PointTest" time="0.0"/>
   <testcase name="testPointsBetween" classname="PointTest" time="0.0"/>

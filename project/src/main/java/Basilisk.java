@@ -31,19 +31,23 @@ public class Basilisk extends Strategy  {
      * @param state Current state of the game from which to create the distance map
      * @return N x N array where each element corresponds to the traversal cost of that square
      */
-    private double[][] createCostBoard(GameState state) {
-        double[][] costBoard = new double[Board.BOARD_SIZE][Board.BOARD_SIZE];
+    private float[][] createCostBoard(GameState state) {
+        float[][] costBoard = new float[Board.BOARD_SIZE][Board.BOARD_SIZE];
         Board board = state.getBoard();
         Snake[] hostiles = state.getHostileSnakes();
+        Snake ourSnake = state.getOurSnake();
         for (int i = 0; i < Board.BOARD_SIZE; i++) {
             for (int j = 0; j < Board.BOARD_SIZE; j++) {
                 Point point = new Point(i, j);
-                costBoard[i][j] = 1.0;
+                costBoard[i][j] = 1.0f;
                 if (board.isTraversable(point)) {
                     for(Snake snake : hostiles) {
                         for(Point segment : snake.getBody()) {
-                            costBoard[i][j] += segment.gravityDistance(point, 10.0);
+                            costBoard[i][j] += segment.gravityDistance(point, 10.f);
                         }
+                    }
+                    for(Point segment : ourSnake.getBody()) {
+                        costBoard[i][j] += segment.gravityDistance(point, 2.f);
                     }
                 }
             }
@@ -57,7 +61,7 @@ public class Basilisk extends Strategy  {
      * @param state current game state
      * @return an array with two elements, each with either path to each apple or null if no path exists
      */
-    private Point[][] getWeightedCostPath(GameState state, double[][] costBoard) {
+    private Point[][] getWeightedCostPath(GameState state, float[][] costBoard) {
         Apple[] apples = state.getApples();
         Point head = state.getOurSnake().getHead();
         Board board = state.getBoard();
@@ -112,7 +116,7 @@ public class Basilisk extends Strategy  {
         return getBestPathToApples(state, ourPathsToApples);
     }
 
-    private Point[] getBestPathToApples(GameState state,  double[][] costBoard) {
+    private Point[] getBestPathToApples(GameState state,  float[][] costBoard) {
        Point[][] bestPathsToApples = getWeightedCostPath(state, costBoard);
        return getBestPathToApples(state, bestPathsToApples);
     }
@@ -122,9 +126,20 @@ public class Basilisk extends Strategy  {
      * @param state
      * @return Path to the least dense point if it exists or null if there is no least dense point we can travel too
      */
-    private Point[] getPathToLeastDenseSquare(GameState state,  double[][] costBoard) {
+    private Point[] getPathToLeastDenseSquare(GameState state,  float[][] costBoard) {
         Board board = state.getBoard();
-        PriorityQueue<Board.Tuple> leastDensePoints = board.getMostEmptySpace(state);
+        PriorityQueue<Tuple> leastDensePoints = new PriorityQueue<Tuple>();
+        for (int i = 0; i < Board.BOARD_SIZE; i++) {
+            for (int j = 0; j < Board.BOARD_SIZE; j++) {
+                Point point = new Point(i, j);
+                float cost = costBoard[i][j];
+                if (board.isTraversable(point)) {
+                    Tuple tuple = new Tuple(point, cost);
+                    leastDensePoints.add(tuple);
+                }
+            }
+        }
+
         Point leastDensePoint;
         Point[] pathToLeastDensePoint;
         Point head = state.getOurSnake().getHead();
@@ -209,12 +224,6 @@ public class Basilisk extends Strategy  {
         LinkedList<Point> body = snake.getBody();
         int count = 0;
         boolean foundTrapped;
-        /*for (int i = 0; i < 50; i++) {
-            for (int j = 0; j < 50; j++) {
-                System.out.print((trappedRegion[j][i] ? 1 : 0) + " ");
-            }
-            System.out.print("\n");
-        }*/
         for(Point segment : body) {
             Point[] adjacentBlocks = segment.getAllNeighbours();
             foundTrapped = false;
@@ -252,13 +261,12 @@ public class Basilisk extends Strategy  {
     }
 
     private Direction normalDecision(Board board, GameState state,  OpponentModel[] opponentModels, int snakeNumber) {
-        final double EAT_APPLE_SCORE = 5000.0;
-        final double LEAST_DENSE_SQUARE_SCORE = 2000.0;
-        final double HOSTILE_PROXIMITY_SCORE = -3000.0;
+        final double EAT_APPLE_SCORE = 7000.0;
+        final double LEAST_DENSE_SQUARE_SCORE = 1000.0;
         Snake ourSnake = state.getOurSnake();
         Point head = ourSnake.getHead();
         Direction[] allowedDirections = ourSnake.currentDirection().oppositDirection().otherDirections();
-        double[][] costBoard = createCostBoard(state);
+        float[][] costBoard = createCostBoard(state);
 
         Point[] shortestOfOurPaths = getBestPathToApples(state, costBoard);
         Direction shortestPath = null;

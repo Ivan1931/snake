@@ -39,6 +39,7 @@ public class Program {
             if(currentLength < previousLength) {
                 Logger.log(previousStateRepresentation);
                 Logger.log("*");
+                Logger.log("Not cautious");
                 Logger.log("Decision Time: " + (previousB - previousA));
                 Logger.log("*");
             }

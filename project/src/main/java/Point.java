@@ -78,8 +78,17 @@ public class Point {
         return this.y - that.getY();
     }
 
-    public double manhattanDistance(Point that) {
+    public float manhattanDistance(Point that) {
         return Math.abs(this.x - that.getX())  + Math.abs(this.y - that.getY());
+    }
+
+    public static float invSqrt(float x) {
+        float xhalf = 0.5f*x;
+        int i = Float.floatToIntBits(x);
+        i = 0x5f3759df - (i>>1);
+        x = Float.intBitsToFloat(i);
+        x = x*(1.5f - xhalf*x*x);
+        return x;
     }
 
     /**
@@ -87,15 +96,13 @@ public class Point {
      * @param that This other point
      * @return a positive double. MAX_VALUE if the argument point is equal to this point
      */
-    public double gravityDistance(Point that, double G) {
-        if(this.equals(that)) return Double.MAX_VALUE;
-        return G / Math.sqrt(
-                    Math.abs(xDiff(that)) + Math.abs(yDiff(that))
-            );
+    public float gravityDistance(Point that, float G) {
+        if(this.equals(that)) return Float.MAX_VALUE;
+        return G * invSqrt(Math.abs(xDiff(that)) + Math.abs(yDiff(that)));
     }
 
-    public double gravityDistance(Point that) {
-        return this.gravityDistance(that, 10.0);
+    public float gravityDistance(Point that) {
+        return this.gravityDistance(that, 10.f);
     }
 
     @Override
