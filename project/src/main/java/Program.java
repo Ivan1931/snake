@@ -8,6 +8,18 @@ import java.util.Map;
  * @author jonah-hooper, @date 2014/07/29 3:56 PM
  */
 public class Program {
+
+    private static void printNonDeathSquares(GameState state) {
+        Point head = state.getOurSnake().getHead();
+        Board board = state.getBoard();
+        for(Direction direction : Direction.values()) {
+            Point point = head.pointInDirection(direction);
+            if(Board.isOnBoard(point) && board.isTraversable(point)) {
+                System.out.println(direction.toString());
+            }
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         Reader reader = new Reader();
         String initial = reader.readInitialState();
@@ -18,7 +30,7 @@ public class Program {
         double currentLength = 0.0;
 
         boolean wasTrapped = false;
-        final int counterInterval = 1000;
+        final int counterInterval = 3000;
         int games = 0;
 
         while (currentStateRepresentation != null){
@@ -44,9 +56,13 @@ public class Program {
                 wasTrapped = false;
             }*/
 
+            //This here line prints to standard out all of the moves which we cannot do. This is so that if the decisions take to long, we will at least
+            //move into a traversable square
+            printNonDeathSquares(nextState);
             try {
                 nextMove = controller.move();
             } catch (Exception e) {
+                Logger.log("We fucked up");
                 Logger.log(e.getMessage());
                 nextMove = nextState.getOurSnake().currentDirection();
             }

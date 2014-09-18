@@ -253,13 +253,16 @@ public class Basilisk extends Strategy  {
         Point head = snake.getHead();
         Point nextHead = head.pointInDirection(move);
         if (!Board.isOnBoard(nextHead)) return 0.0;
+        Object[] emenance = board.moveableRegion(nextHead, null);
+        boolean[][] movableRegion = (boolean[][]) emenance[0];
+        int squaresInRegion = (int) emenance[1];
+        if (snake.getLength() < squaresInRegion) return 500.0;
+        if (!Board.isOnBoard(nextHead)) return 0.0;
         if (snake.moveWouldTrap(move, board)) {
-            Object[] emenance = board.moveableRegion(nextHead, null);
-            boolean[][] movableRegion = (boolean[][]) emenance[0];
-            int squaresInRegion = (int) emenance[1];
             int movesUntilUntrapped = movesUntilSnakeUntrapped(movableRegion, snake);
             if (movesUntilUntrapped < squaresInRegion) {
                 return (1.0 - movesUntilUntrapped / squaresInRegion) * TRAPPED_TO_DEATH;
+                //return TRAPPED_TO_DEATH / 5;
             } else {
                 return TRAPPED_TO_DEATH;
             }
@@ -267,28 +270,14 @@ public class Basilisk extends Strategy  {
         return 0.0;
     }
 
-    private void printNonDeathSquares(GameState state) {
-        Point head = state.getOurSnake().getHead();
-        Board board = state.getBoard();
-        for(Direction direction : Direction.values()) {
-            Point point = head.pointInDirection(direction);
-            if(Board.isOnBoard(point) && board.isTraversable(point)) {
-                System.out.println(direction.toString());
-            }
-        }
-    }
 
     private Direction normalDecision(Board board, GameState state,  OpponentModel[] opponentModels, int snakeNumber) {
         final double EAT_APPLE_SCORE = 5000.0;
-        final double LEAST_DENSE_SQUARE_SCORE = 500.0;
-        final double HOSTILE_PROXIMITY_SCORE = -3000.0;
+        final double LEAST_DENSE_SQUARE_SCORE = 2000.0;
         Snake ourSnake = state.getOurSnake();
         Point head = ourSnake.getHead();
         Direction[] allowedDirections = ourSnake.currentDirection().oppositDirection().otherDirections();
 
-        //This here line prints to standard out all of the moves which we cannot do. This is so that if the decisions take to long, we will at least
-        //move into a traversable square
-        printNonDeathSquares(state);
 
         Point[] shortestOfOurPaths = getOurBestPath(state, board);
         Direction shortestPath = null;
@@ -306,28 +295,28 @@ public class Basilisk extends Strategy  {
             directionToLeastDense = head.directionBetween(pathToLeastDenseSquare[1]);
         double bestDirectionScore = -10000000.0;
         Direction bestDirection = null;
-        HashSet<Point> hostileSnakeMovablePoints = hostileMovableRegion(state, 2);
         for(Direction direction : allowedDirections) {
             double currentDirectionScore = moveDeathScore(direction, board, state);
-            Point pointInDirection = head.pointInDirection(direction);
+            if (currentDirectionScore >= 0.0) {
+                Point pointInDirection = head.pointInDirection(direction);
 
-            if (shortestPath != null && shortestPath == direction) currentDirectionScore += EAT_APPLE_SCORE;
+                if (shortestPath != null && shortestPath == direction) currentDirectionScore += EAT_APPLE_SCORE;
 
-            if (directionToLeastDense == direction) currentDirectionScore += LEAST_DENSE_SQUARE_SCORE;
+                if (directionToLeastDense == direction) currentDirectionScore += LEAST_DENSE_SQUARE_SCORE;
 
-            //if (hostileSnakeMovablePoints.contains(pointInDirection)) currentDirectionScore += HOSTILE_PROXIMITY_SCORE;
+                //if (hostileSnakeMovablePoints.contains(pointInDirection)) currentDirectionScore += HOSTILE_PROXIMITY_SCORE;
 
-            currentDirectionScore += scoreCollosionWithHostile(board, state, direction);
+                currentDirectionScore += scoreCollosionWithHostile(board, state, direction);
 
-            currentDirectionScore += scoreTrapped(board, state, direction);
+                currentDirectionScore += scoreTrapped(board, state, direction);
 
+            }
             if (currentDirectionScore > bestDirectionScore) {
                 System.out.println(Direction.asInt(direction));
                 bestDirectionScore = currentDirectionScore;
                 bestDirection = direction;
             }
         }
-
         if (bestDirection == null) return ourSnake.currentDirection();
         return bestDirection;
     }

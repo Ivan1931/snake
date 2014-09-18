@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="SnakeTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2014-09-17T20:33:46" hostname="ivans-machine" time="0.2">
+<testsuite name="SnakeTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2014-09-18T20:50:32" hostname="ivans-machine" time="0.243">
   <properties/>
-  <testcase name="testEndPoints" classname="SnakeTest" time="0.0"/>
+  <testcase name="testEndPoints" classname="SnakeTest" time="0.001"/>
   <testcase name="testCreation" classname="SnakeTest" time="0.004"/>
+  <testcase name="testCreationFromData13_6" classname="SnakeTest" time="0.0"/>
   <testcase name="testEndPoints" classname="SnakeTest" time="0.0"/>
   <testcase name="testCreation" classname="SnakeTest" time="0.003"/>
+  <testcase name="testCreationFromData13_6" classname="SnakeTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
