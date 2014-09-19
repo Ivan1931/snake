@@ -47,16 +47,18 @@ public class Serpent extends Strategy {
             Point[] neighbours = current.getAllNeighbours();
 
             for(Point neighbour : neighbours) {
-                if(Board.isOnBoard(neighbour) && board.isTraversable(neighbour) && !movableZone.contains(neighbour) && !head.equals(neighbour)) {
+                if(Board.isOnBoard(neighbour)
+                        && board.isTraversable(neighbour)
+                        && !movableZone.contains(neighbour)
+                        && !head.equals(neighbour)) {
                     frontier.add(neighbour);
                     movableZone.add(neighbour);
                 } else {
-                    isBoarder = (Board.isOnBoard(neighbour) && !board.isTraversable(neighbour));
+                    if (Board.isOnBoard(neighbour) && !board.isTraversable(neighbour)) {
+                        boarder.add(neighbour);
+                    }
                 }
             }
-
-            if(isBoarder) boarder.add(current);
-            isBoarder = false;
 
         }
         return new HashSet[] {movableZone, boarder};
@@ -83,7 +85,6 @@ public class Serpent extends Strategy {
     }
 
     private boolean movebleRegionContainsHostileEnd(GameState state, HashSet<Point> movableRegion) {
-        Snake[] snakes = state.getHostileSnakes();
         for(Snake snake : state.getHostileSnakes()) {
             if (movableRegion.contains(snake.getEnd())) return true;
         }
@@ -93,14 +94,10 @@ public class Serpent extends Strategy {
     private boolean isTrapped(GameState state,  HashSet<Point>[] sets) {
         Snake ourSnake = state.getOurSnake();
         HashSet<Point> movableRegion = sets[0];
+        HashSet<Point> border = sets[1];
         return !(movableRegion.size() > ourSnake.getLength()
-                || movableRegion.contains(ourSnake.getEnd())
+                ||  border.contains(ourSnake.getEnd())
                 ||  movebleRegionContainsHostileEnd(state, movableRegion));
-    }
-
-    private boolean isTrapped(GameState state,  HashSet<Point> movableZone) {
-        Point tail = state.getOurSnake().getEnd();
-        return movableZone.size() < state.getOurSnake().getLength() || movableZone.contains(tail);
     }
 
     private boolean moveByBoarder(GameState state,  HashSet<Point> border, Point potentialMove) {
@@ -137,7 +134,7 @@ public class Serpent extends Strategy {
 
     private Point leastDenseReachableSquare(GameState state, HashSet<Point> movableZone) {
         Snake[] snakes = state.getSnakes();
-        final int checkInterval = 5;
+        final int checkInterval = 4;
         int checked = 0;
         Point leastDenseSoFar = null;
         double bestDensity = Double.MAX_VALUE;
@@ -158,6 +155,13 @@ public class Serpent extends Strategy {
         }
 
         return leastDenseSoFar;
+    }
+
+    private Point moveToLeastDenseSquare(GameState state, HashSet<Point> movableRegion) {
+        Point reachableLeastDenseSquare = leastDenseReachableSquare(state, movableRegion);
+        Point[] pathToLeastDenseSquare = state.getBoard().approximateShortestPath(state.getOurSnake().getHead(), reachableLeastDenseSquare);
+        if (pathToLeastDenseSquare != null && pathToLeastDenseSquare.length > 2) return pathToLeastDenseSquare[1];
+        return null;
     }
 
     private Direction directionOfPath(Point[] path) {
@@ -255,24 +259,29 @@ public class Serpent extends Strategy {
     }
 
     public double percentageMovableRegionReduction(HashSet<Point> movableRegion, HashSet<Point> potentialMovableRegion) {
-        return (movableRegion.size() - potentialMovableRegion.size()) / movableRegion.size();
+        return (double) (movableRegion.size() - potentialMovableRegion.size()) / (double) movableRegion.size();
     }
 
     public double score(boolean willTrap,  boolean isPathToLeastDenseSquare, boolean pathToClosestApple,
                         boolean willCollideWithOtherSnake, double regionSizeReductionPercentage, double percentageAgeOfAdjacentSquare) {
         double score = 0.0;
-        if (willTrap) score += -10.0;
-        if (isPathToLeastDenseSquare) score += 1.5;
-        if (pathToClosestApple) score += 5.0;
+        if (willTrap) score -= 10.0;
+        if (isPathToLeastDenseSquare) score += 1.0;
+        if (pathToClosestApple) score += 4.0;
         if (willCollideWithOtherSnake) score += -10.0;
         score -= regionSizeReductionPercentage * 10.0;
         score -= percentageAgeOfAdjacentSquare * 0.0;
         return score;
     }
 
-    public double scoreTrapped(boolean isPathToLeastDenseSquare, boolean pathToClosestApple, boolean willCollideWithOtherSnake,
-                               double regionSizeReductionPercentage, double averageAgeOfAdjacentSquare) {
-        return 0.0;
+    public double scoreTrapped(boolean pathToClosestApple, boolean willCollideWithOtherSnake,
+                               double regionSizeReductionPercentage, double percentageAgeOfAdjacentSquare){
+        double score = 0.0;
+        if(pathToClosestApple) score += 1.0;
+        if(willCollideWithOtherSnake) score -= 10.0;
+        score -= regionSizeReductionPercentage * 10.0;
+        score -= percentageAgeOfAdjacentSquare * 0.0;
+        return score;
     }
 
 
@@ -286,8 +295,9 @@ public class Serpent extends Strategy {
         int[][] ageBoard = createAgeBoard(state);
         Point[] movablePoints = availableMoves(state);
         Point shortestPathToAppleMove = bestPathToApple(state, movableZone);
-        Point moveToLeastDenseSquare = leastDenseReachableSquare(state, movableZone);
+        Point moveToLeastDenseSquare = moveToLeastDenseSquare(state, movableZone);
         HashMap<Point, HashSet<Point>[]> movableData = movableDataForPoints(state, movablePoints);
+        boolean isTrapped = isTrapped(state, sets);
 
         double bestScore = -Double.MAX_VALUE;
         Point bestMove = null;
@@ -302,9 +312,14 @@ public class Serpent extends Strategy {
             double maxAgeOfAdjacencies = maxAgeOfAdjacencies(state, ageBoard, potentialMove);
             if (maxAgeOfAdjacencies > Double.MIN_VALUE) percentageAgeOfAdjacencies =  maxAgeOfAdjacencies / snake.getLength();
 
-            double score = score(willTrap, isPathToLeastDenseSquare,
-                                isShortestPathToApple, willCollideWithOtherSnake,
-                                regionSizeReduction, percentageAgeOfAdjacencies);
+            double score = 0.0;
+            if (!isTrapped) {
+                score = score(willTrap, isPathToLeastDenseSquare,
+                        isShortestPathToApple, willCollideWithOtherSnake,
+                        regionSizeReduction, percentageAgeOfAdjacencies);
+            } else {
+                score = scoreTrapped(isShortestPathToApple, willCollideWithOtherSnake, regionSizeReduction, percentageAgeOfAdjacencies);
+            }
             if (bestScore < score) {
                 bestScore = score;
                 bestMove = potentialMove;

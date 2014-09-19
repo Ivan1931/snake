@@ -89,9 +89,7 @@ public class Point {
      */
     public double gravityDistance(Point that, double G) {
         if(this.equals(that)) return Double.MAX_VALUE;
-        return G / Math.sqrt(
-                    Math.abs(xDiff(that)) + Math.abs(yDiff(that))
-            );
+        return G / Math.sqrt(Math.pow(xDiff(that), 2) + Math.pow(yDiff(that), 2));
     }
 
     public double gravityDistance(Point that) {

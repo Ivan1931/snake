@@ -42,7 +42,7 @@ public class SerpentTest extends TestCase {
         Direction move = gameController.move();
         long b = System.currentTimeMillis();
         System.out.println(b - a);
-        assertNotSame(direction, move);
+        assert(direction != move);
     }
 
     public void testDecisionForTestData2_5() throws Exception {
@@ -90,7 +90,7 @@ public class SerpentTest extends TestCase {
     }
 
     public void testDecisionForData13_2() {
-        testNotMoveForState(testDataFile13_2, Direction.NORTH);
+        testNotMoveForState(testDataFile13_2, Direction.EAST);
     }
 
     public void testDecisionForData13_6() {
