@@ -197,6 +197,15 @@ public class Board {
         return path.toArray(new Point[path.size()]);
     }
 
+    public Point[] getTraverableNeighbours(Point point) {
+        LinkedList<Point> traversableNeighbours = new LinkedList<Point>();
+        Point[] neighbours = point.getAllNeighbours();
+        for(Point n : neighbours) {
+            if (Board.isOnBoard(n) && isTraversable(n)) traversableNeighbours.add(n);
+        }
+        return traversableNeighbours.toArray(new Point[traversableNeighbours.size()]);
+    }
+
 
     public boolean isFull() {
         return nonEmptySpaces.size() == (BOARD_SIZE * BOARD_SIZE);
@@ -246,7 +255,9 @@ public class Board {
             Point current = frontier.poll();
             Point[] neighbours = adjacentEmptyPoints(current);
             for(Point neighbour : neighbours) {
-                if (!emenance[neighbour.getX()][neighbour.getY()] && !blockedPoints.contains(neighbour) && !neighbour.equals(point)) {
+                if (!emenance[neighbour.getX()][neighbour.getY()]
+                        && !blockedPoints.contains(neighbour)
+                        && !neighbour.equals(point)) {
                     emenance[neighbour.getX()][neighbour.getY()] = true;
                     frontier.add(neighbour);
                     reachable++;
